@@ -19,6 +19,7 @@ public class Listener implements EventListener {
         Event e = (Event) event;
         if(event instanceof MessageReceivedEvent){
             MessageReceivedEvent mEvent = (MessageReceivedEvent) event;
+            System.out.println("LOG: "+mEvent.getMessage());
             new CommandMap().dispatch(mEvent.getAuthor(), mEvent.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), event);
         }
     }

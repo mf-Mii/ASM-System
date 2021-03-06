@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class CommandMap {
     private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
-    protected final Map<String, CommandManager> knownCommands = new HashMap<>();
+    protected static final Map<String, CommandManager> knownCommands = new HashMap<>();
 
     public void registerAll(@NotNull String prefix, @NotNull List<CommandManager> commands){
         if(commands!=null){
@@ -22,23 +22,22 @@ public class CommandMap {
         }
     }
 
-    public boolean register(@NotNull String prefix, @NotNull CommandManager command){
-        return register(command.getName(), prefix, command);
+    public boolean register(@NotNull CommandManager command){
+        return register(command.getName(), command);
     }
 
-    public boolean register(@NotNull String label, @NotNull String prefix, @NotNull CommandManager command){
+    public boolean register(@NotNull String label, @NotNull CommandManager command){
         label = label.toLowerCase().trim();
-        prefix = prefix.toLowerCase().trim();
-        boolean registered = register(label, command, false, prefix);
+        boolean registered = register(label, command, false);
         Iterator<String> iterator = command.getAliases().iterator();
         while (iterator.hasNext()){
-            if(!register(iterator.next(), command, true, prefix)){// if false
+            if(!register(iterator.next(), command, true)){// if false
                 iterator.remove();
             }
         }
 
         if(!registered){
-            command.setLabel(prefix+":"+label);
+            command.setLabel(label);
         }
 
         command.register(this);
@@ -46,8 +45,8 @@ public class CommandMap {
         return registered;
     }
 
-    public synchronized boolean register(@NotNull String label, @NotNull CommandManager command, boolean isAlias, @NotNull String prefix){
-        knownCommands.put(prefix+":"+label, command);
+    public synchronized boolean register(@NotNull String label, @NotNull CommandManager command, boolean isAlias){
+        knownCommands.put(label, command);
         if(isAlias && knownCommands.containsKey(label)){
             return false;
         }
@@ -68,16 +67,17 @@ public class CommandMap {
     }
 
     public boolean dispatch(User sender, String commandLine, GenericEvent event) {
-        String[] args = PATTERN_ON_SPACE.split(commandLine);
-
+        //String[] args = PATTERN_ON_SPACE.split(commandLine);
+        String[] args = commandLine.split(" ");
         if (args.length == 0) {
             return false;
         }
 
         String sentCommandLabel = args[0].toLowerCase();
         CommandManager target = getCommand(sentCommandLabel);
-
+        System.out.println("name: "+sentCommandLabel);
         if (target == null) {
+            System.out.println("target is null.");
             return false;
         }
 
