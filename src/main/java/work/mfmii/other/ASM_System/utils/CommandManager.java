@@ -1,6 +1,9 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +45,7 @@ public abstract class CommandManager {
      * @param args All arguments passed to the command, split via ' '
      * @return true if the command was successful, otherwise false
      */
-    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args);
+    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull GenericEvent event);
 
     /**
      * Returns the name of this command

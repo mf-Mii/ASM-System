@@ -1,13 +1,17 @@
 package work.mfmii.other.ASM_System.utils;
 
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import work.mfmii.other.ASM_System.Config;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class CommandMap {
+    private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
     protected final Map<String, CommandManager> knownCommands = new HashMap<>();
 
     public void registerAll(@NotNull String prefix, @NotNull List<CommandManager> commands){
@@ -62,4 +66,41 @@ public class CommandMap {
 
         return registered;
     }
+
+    public boolean dispatch(User sender, String commandLine, GenericEvent event) {
+        String[] args = PATTERN_ON_SPACE.split(commandLine);
+
+        if (args.length == 0) {
+            return false;
+        }
+
+        String sentCommandLabel = args[0].toLowerCase();
+        CommandManager target = getCommand(sentCommandLabel);
+
+        if (target == null) {
+            return false;
+        }
+
+        try {
+            target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
+        } catch (Throwable ex) {
+            System.out.println("Unhandled exception executing '" + commandLine + "' in " + target+ex.getMessage());
+        }
+
+        // return true as command was handled
+        return true;
+    }
+
+    public synchronized void clearCommands() {
+        for (Map.Entry<String, CommandManager> entry : knownCommands.entrySet()) {
+            entry.getValue().unregister(this);
+        }
+        knownCommands.clear();
+    }
+
+    public CommandManager getCommand(String name) {
+        CommandManager target = knownCommands.get(name.toLowerCase());
+        return target;
+    }
+
 }
