@@ -4,8 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import work.mfmii.other.ASM_System.utils.FileUtil;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Config {
     private String type = null;
@@ -28,8 +27,8 @@ public class Config {
     public String getString(String key){
         List<String> keys = Arrays.asList(key.split("\\.").clone());
         JSONObject temp = new JSONObject(getRaw());
-        for (int i = 0; i <= keys.size() - 1; i++) {
-            if (i == keys.size() - 1) {
+        for (int i = 0; i <= keys.size()-1; i++) {
+            if (i == keys.size()-1) {
                 return temp.getString(keys.get(i));
             }
             temp = temp.getJSONObject(keys.get(i));

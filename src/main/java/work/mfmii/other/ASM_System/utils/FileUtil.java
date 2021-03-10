@@ -1,6 +1,11 @@
 package work.mfmii.other.ASM_System.utils;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileUtil {
     public FileUtil(){}
@@ -67,6 +72,90 @@ public class FileUtil {
             return null;
         }
 
+    }
+
+    public Object getObjectFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.get(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return null;
+    }
+
+    public boolean getBooleanFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getBoolean(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return false;
+    }
+
+    public String getStringFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getString(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return null;
+    }
+
+    public int getIntFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getInt(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return -1;
+    }
+
+    public long getLongFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getLong(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return -1;
+    }
+
+    public JSONObject getJSONObjectFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getJSONObject(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return null;
+    }
+
+    public JSONArray getJSONArrayFromJSON(JSONObject json, String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = json;
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getJSONArray(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return null;
     }
 
 }

@@ -66,7 +66,7 @@ public class CommandMap {
         return registered;
     }
 
-    public boolean dispatch(User sender, String commandLine, GenericEvent event) {
+    public boolean dispatch(User sender, String commandLine, MessageReceivedEvent event) {
         //String[] args = PATTERN_ON_SPACE.split(commandLine);
         String[] args = commandLine.split(" ");
         if (args.length == 0) {

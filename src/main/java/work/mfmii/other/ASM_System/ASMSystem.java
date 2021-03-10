@@ -12,11 +12,19 @@ import javax.security.auth.login.LoginException;
 public class ASMSystem {
     public static JDA jda;
     public static void main(String[] args) throws LoginException {
+
         jda = JDABuilder.createDefault(new Config(Config.ConfigType.JSON).getString("token"))
-                .setActivity(Activity.playing("ASM"))
                 .addEventListeners(new Listener())
                 .setStatus(OnlineStatus.ONLINE)
                 .build();
-        new CommandMap().register("help", new Help("help"));
+        try{
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+        }
+        jda.getPresence().setActivity(Activity.playing(
+                new Config(Config.ConfigType.JSON).getString("activity.name").replaceAll("\\$\\{guilds\\.count\\}",  String.valueOf(jda.getGuilds().size())).replaceAll("\\$\\{members\\.count\\}", String.valueOf(jda.getUsers().size()))
+        ));
+        new CommandMap().register(new Help("help"));
     }
 }

@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
+import work.mfmii.other.ASM_System.Config;
 
 import javax.print.DocFlavor;
 import java.util.ArrayList;
@@ -15,26 +17,12 @@ public abstract class CommandManager {
     private String name;
     private String nextLabel;
     private String label;
-    private String permission;
-    private List<String> aliases;
-    protected String about;
-    protected String description;
-    protected String usage;
-    private String permissionMessage;
     private CommandMap commandMap;
 
     protected CommandManager(@NotNull String name){
-        this(name, "", "", "/"+name, new ArrayList<String>());
-    }
-
-    protected CommandManager(@NotNull String name,@NotNull String about, @NotNull String description, @NotNull String usage, @NotNull List<String> aliases){
         this.name = name;
         this.nextLabel = name;
         this.label = name;
-        this.about = about;
-        this.description = description;
-        this.usage = usage;
-        this.aliases = aliases;
     }
 
     /**
@@ -45,7 +33,12 @@ public abstract class CommandManager {
      * @param args All arguments passed to the command, split via ' '
      * @return true if the command was successful, otherwise false
      */
-    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull GenericEvent event);
+    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event);
+
+    public String getCommandsRaw(){
+        return new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8");
+    }
+
 
     /**
      * Returns the name of this command
@@ -84,17 +77,7 @@ public abstract class CommandManager {
      */
     @Nullable
     public String getPermission() {
-        return permission;
-    }
-
-    /**
-     * Sets the permission required by users to be able to perform this
-     * command
-     *
-     * @param permission Permission name or null
-     */
-    public void setPermission(@Nullable String permission) {
-        this.permission = permission;
+        return new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".permission");
     }
 
     /**
@@ -186,6 +169,10 @@ public abstract class CommandManager {
      */
     @NotNull
     public List<String> getAliases() {
+        List<String> aliases = new ArrayList<>();
+        new FileUtil().getJSONArrayFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".aliases").forEach(o -> {
+            aliases.add(o.toString());
+        });
         return aliases;
     }
 
@@ -196,8 +183,10 @@ public abstract class CommandManager {
      * @return Permission check failed message
      */
     @Nullable
-    public String getPermissionMessage() {
-        return permissionMessage;
+    public String getPermissionMessage(LanguageUtil.Language lang) {
+        String message = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".permissionMessage");
+        message = message.replaceAll("\\$\\{default\\.permissionMessage\\}", new LanguageUtil().getMessage(lang, "default.permissionMessage"));
+        return message;
     }
 
     /**
@@ -206,9 +195,24 @@ public abstract class CommandManager {
      * @return Description of this command
      */
     @NotNull
-    public String getDescription() {
+    public String getDescription(LanguageUtil.Language lang) {
+        String description = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".description");
+        description = description.replaceAll("\\$\\{default\\.description\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".description"));
         return description;
     }
+
+    /**
+     * Gets a brief about of this command
+     *
+     * @return Description of this command
+     */
+    @NotNull
+    public String getAbout(LanguageUtil.Language lang) {
+        String about = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".about");
+        about = about.replaceAll("\\$\\{default\\.about\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".about"));
+        return about;
+    }
+
 
     /**
      * Gets an example usage of this command
@@ -216,56 +220,12 @@ public abstract class CommandManager {
      * @return One or more example usages
      */
     @NotNull
-    public String getUsage() {
+    public String getUsage(LanguageUtil.Language lang) {
+        String usage = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".usage");
+        usage = usage.replaceAll("\\$\\{default\\.usage\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
+        usage = usage.replaceAll("\\$\\{prefix\\}", new Config(Config.ConfigType.JSON).getString("prefix"));
         return usage;
     }
 
-    /**
-     * Sets the list of aliases to request on registration for this command.
-     *
-     * @param aliases aliases to register to this command
-     * @return this command object, for chaining
-     */
-    @NotNull
-    public CommandManager setAliases(@NotNull List<String> aliases) {
-        this.aliases = aliases;
-        return this;
-    }
 
-    /**
-     * Sets a brief description of this command.
-     *
-     * @param description new command description
-     * @return this command object, for chaining
-     */
-    @NotNull
-    public CommandManager setDescription(@NotNull String description) {
-        this.description = (description == null) ? "" : description;
-        return this;
-    }
-
-    /**
-     * Sets the message sent when a permission check fails
-     *
-     * @param permissionMessage new permission message, null to indicate
-     *     default message, or an empty string to indicate no message
-     * @return this command object, for chaining
-     */
-    @NotNull
-    public CommandManager setPermissionMessage(@Nullable String permissionMessage) {
-        this.permissionMessage = permissionMessage;
-        return this;
-    }
-
-    /**
-     * Sets the example usage of this command
-     *
-     * @param usage new example usage
-     * @return this command object, for chaining
-     */
-    @NotNull
-    public CommandManager setUsage(@NotNull String usage) {
-        this.usage = (usage == null) ? "" : usage;
-        return this;
-    }
 }
