@@ -29,17 +29,20 @@ public class LanguageUtil {
     }
 
     public Language getUserLanguageById(String userId){
-        if(userId.length() != 18) return null;
         try {
             Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
             PreparedStatement pstmt = con.prepareStatement("SELECT lang FROM dc_user WHERE id=?");
             pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();
             if(rs.next()){
-                return Language.valueOf(rs.getString("lang"));
-            }else{
-                return Language.OTHER;
+                for (Language l: Language.values()) {
+                    if(l.getKey().toLowerCase().equals(rs.getString("lang").toLowerCase())){
+                        return l;
+                    }
+                }
+                //return Language.valueOf(rs.getString("lang"));
             }
+            return Language.OTHER;
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

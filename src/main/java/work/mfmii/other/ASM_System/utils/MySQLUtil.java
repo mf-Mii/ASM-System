@@ -6,12 +6,11 @@ public class MySQLUtil {
     public MySQLUtil(){}
 
     public String getUrl(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("jdbc:mysql://").append(new Config(Config.ConfigType.JSON).getString("mysql.host")).append(":")
-                .append(new Config(Config.ConfigType.JSON).getInt("mysql.port")).append("/")
-                .append(new Config(Config.ConfigType.JSON).getString("mysql.database"))
-                .append("?serverTimezone=JST&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false");
-        return sb.toString();
+        String s1 = String.format("jdbc:mysql://%s:%s/%s?useUnicode=true&characterEncoding=utf8",
+                new Config(Config.ConfigType.JSON).getString("mysql.host"),
+                new Config(Config.ConfigType.JSON).getInt("mysql.port"),
+                new Config(Config.ConfigType.JSON).getString("mysql.database"));
+        return s1;
     }
 
     public String getUser(){

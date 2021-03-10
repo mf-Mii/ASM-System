@@ -19,7 +19,7 @@ public class Help extends CommandManager {
         if (command.equalsIgnoreCase("help")) {
             boolean isEmbed = true;
             if(args.length > 0){
-                if(args[args.length-1] == "-ne"){
+                if(args[args.length - 1].equals("-ne")){
                     isEmbed = false;
                 }
             }
@@ -36,7 +36,7 @@ public class Help extends CommandManager {
                         .queue();
             }else {
                 StringBuilder sb = new StringBuilder();
-                sb.append(new LanguageUtil().getMessage(lang, "command.help.content.text"));
+                sb.append(new LanguageUtil().getMessage(lang, "command.help.content.text").replaceAll("\\$\\{prefix\\}", new Config(Config.ConfigType.JSON).getString("prefix")));
 
 
                 event.getChannel().sendMessage(sb.toString()).queue();
