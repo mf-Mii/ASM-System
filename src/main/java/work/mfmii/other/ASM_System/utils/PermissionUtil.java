@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PermissionUtil {
     public PermissionUtil(){}
@@ -134,20 +135,40 @@ public class PermissionUtil {
                 pstmt.setString(2, permission);
             }
             ResultSet rs = pstmt.executeQuery();
-            boolean result = false;
+            sql = new StringBuilder()
+                    .append("SELECT * FROM `dc_perm_each` WHERE ");
+            if(addGid) sql.append("`guild_id`=? AND ");
+            sql.append("`channel_id`=? AND `permission` LIKE 'group.%'");
+            pstmt = con.prepareStatement(sql.toString());
+            ResultSet rs_group = pstmt.executeQuery();
+
+            boolean _set = false;
+            AtomicBoolean result = new AtomicBoolean(false);
             boolean _global = false;
+            List<String> groups = new ArrayList<>();
             while (rs.next()){
-                if(rs.getString("user_id").equalsIgnoreCase("global") || rs.getString("user_id").equalsIgnoreCase(userId)){
+                if(rs.getString("permission").equalsIgnoreCase(permission) && (rs.getString("user_id").equalsIgnoreCase("global") || rs.getString("user_id").equalsIgnoreCase(userId))){
                     if(!_global){//値がないもしくはグローバルが入ってた場合
+                        _set = true;
                         _global = rs.getString("user_id").equalsIgnoreCase("global");
-                        result = rs.getBoolean("value");
+                        result.set(rs.getBoolean("value"));
                     }
+                }
+                if(rs.getString("permission").startsWith("group.")){
+                    groups.add(rs.getString("permission"));
                 }
             }
             rs.close();
             pstmt.close();
             con.close();
-            return result;
+            if(!_set){
+                groups.forEach(k -> {
+                    if(hasPermissionInGroup(k.replaceFirst("group\\.", ""), permission)){
+                        result.set(true);
+                    }
+                });
+            }
+            return result.get();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
@@ -162,7 +183,7 @@ public class PermissionUtil {
         return result;
     }
 
-    public Map<String, Boolean> getGroupPermissions(String name){
+    public Map<String, Boolean> getGroupPermissions(@NotNull String name){
         Map<String, Boolean> result = new HashMap<>();
         if(name == null || name.isEmpty()){
             return result;
@@ -212,6 +233,46 @@ public class PermissionUtil {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return null;
+        }
+
+    }
+
+    public boolean hasPermissionInGroup(@NotNull String name, @NotNull String permission){
+        if(name.isEmpty() || permission.isEmpty()){
+            return false;
+        }
+        try {
+            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission`='group.%')");
+            pstmt.setString(1, name);
+            pstmt.setString(2, permission);
+            ResultSet rs = pstmt.executeQuery();
+            boolean _set = false;
+            AtomicBoolean result = new AtomicBoolean(false);
+            List<String> groups = new ArrayList<>();
+            while (rs.next()){
+                if(rs.getString("permission").startsWith("group.")){
+                    groups.add(rs.getString("permission"));
+                }else{
+                    _set = true;
+                    result.set(rs.getBoolean("value"));
+                }
+            }
+            rs.close();
+            pstmt.close();
+            con.close();
+            if(_set) {
+                groups.forEach(k -> {
+                    if (hasPermissionInGroup(k.replaceFirst("group\\.", ""), permission)) {
+                        result.set(true);
+                    }
+                });
+            }
+            return result.get();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
         }
     }
 }
