@@ -20,14 +20,14 @@ public class Help extends CommandManager {
     @Override
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
         if (command.equalsIgnoreCase("help")) {
-            boolean isEmbed = true;
+            boolean useEmbed = true;
             if(args.length > 0){
                 if(args[args.length - 1].equals("-ne")){
-                    isEmbed = false;
+                    useEmbed = false;
                 }
             }
             LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(event.getAuthor());
-            if(isEmbed) {
+            if(useEmbed) {
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setTitle(new LanguageUtil().getMessage(lang, "command.help.content.embed.title"))
                         .setAuthor(new LanguageUtil().getMessage(lang, "command.help.content.embed.author.name"),

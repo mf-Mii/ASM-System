@@ -18,7 +18,7 @@ public class FileUtil {
      * @return File object if one was found, path was null return File object "DataFolder"
      */
     public File getFile(String path) {
-        if (path.isEmpty())
+        if (path == null || path.isEmpty())
             return new File(new File(".").getAbsoluteFile().getParentFile(), "BotSystemFile/"+path!=null?path:"");
         else {
             if(path.contains("/")){
