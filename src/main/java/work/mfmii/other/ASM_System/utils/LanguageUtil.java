@@ -34,14 +34,20 @@ public class LanguageUtil {
             PreparedStatement pstmt = con.prepareStatement("SELECT lang FROM dc_user WHERE id=?");
             pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();
+            Language res;
             if(rs.next()){
                 for (Language l: Language.values()) {
                     if(l.getKey().toLowerCase().equals(rs.getString("lang").toLowerCase())){
+                        rs.close();
+                        pstmt.close();
+                        con.close();
                         return l;
                     }
                 }
-                //return Language.valueOf(rs.getString("lang"));
             }
+            rs.close();
+            pstmt.close();
+            con.close();
             return Language.OTHER;
 
         } catch (SQLException throwables) {
