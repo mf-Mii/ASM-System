@@ -1,6 +1,7 @@
 package work.mfmii.other.ASM_System.utils;
 
 import org.jetbrains.annotations.NotNull;
+import work.mfmii.other.ASM_System.Config;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class PermissionUtil {
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
             if(addGid) sql.append("`guild_id`=? AND ");
-            sql.append("`channel_id`=? AND `permission`=?");
+            sql.append("`channel_id`=? AND (`permission`=? OR `permission` LIKE 'group.%')");
             PreparedStatement pstmt = con.prepareStatement(sql.toString());
             if(addGid) {
                 pstmt.setString(1, _gid);
@@ -135,12 +136,6 @@ public class PermissionUtil {
                 pstmt.setString(2, permission);
             }
             ResultSet rs = pstmt.executeQuery();
-            sql = new StringBuilder()
-                    .append("SELECT * FROM `dc_perm_each` WHERE ");
-            if(addGid) sql.append("`guild_id`=? AND ");
-            sql.append("`channel_id`=? AND `permission` LIKE 'group.%'");
-            pstmt = con.prepareStatement(sql.toString());
-            ResultSet rs_group = pstmt.executeQuery();
 
             boolean _set = false;
             AtomicBoolean result = new AtomicBoolean(false);
@@ -243,7 +238,7 @@ public class PermissionUtil {
         }
         try {
             Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
-            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission`='group.%')");
+            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission` LIKE 'group.%')");
             pstmt.setString(1, name);
             pstmt.setString(2, permission);
             ResultSet rs = pstmt.executeQuery();
@@ -261,7 +256,7 @@ public class PermissionUtil {
             rs.close();
             pstmt.close();
             con.close();
-            if(_set) {
+            if(!_set) {
                 groups.forEach(k -> {
                     if (hasPermissionInGroup(k.replaceFirst("group\\.", ""), permission)) {
                         result.set(true);

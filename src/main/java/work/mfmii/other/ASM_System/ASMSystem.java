@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import work.mfmii.other.ASM_System.command.Help;
+import work.mfmii.other.ASM_System.command.UserInfo;
 import work.mfmii.other.ASM_System.utils.CommandMap;
 
 import javax.security.auth.login.LoginException;
@@ -26,5 +27,6 @@ public class ASMSystem {
                 new Config(Config.ConfigType.JSON).getString("activity.name").replaceAll("\\$\\{guilds\\.count\\}",  String.valueOf(jda.getGuilds().size())).replaceAll("\\$\\{members\\.count\\}", String.valueOf(jda.getUsers().size()))
         ));
         new CommandMap().register(new Help("help"));
+        new CommandMap().register(new UserInfo("userinfo"));
     }
 }

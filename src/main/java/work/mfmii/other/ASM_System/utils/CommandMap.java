@@ -75,11 +75,6 @@ public class CommandMap {
 
         String sentCommandLabel = args[0].toLowerCase();
         CommandManager target = getCommand(sentCommandLabel);
-        System.out.println("name: "+sentCommandLabel);
-        if (target == null) {
-            System.out.println("target is null.");
-            return false;
-        }
 
         try {
             target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
