@@ -118,15 +118,26 @@ public class PermissionUtil {
         }
         try {
             boolean addGid = true;
+            boolean addUid = false;
             String _gid = (guildId == null || guildId.length() != 18) ? "global" : guildId;
             String _cid = (channelId == null || channelId.length() != 18) ? "global" : channelId;
+            String _uid = (userId == null || userId.length() != 18) ? "global" : userId;
             if (!_cid.equals("global")) addGid = false;
+            if (!_uid.equals("global")) addUid = true;
             Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
             if(addGid) sql.append("`guild_id`=? AND ");
-            sql.append("`channel_id`=? AND (`permission`=? OR `permission` LIKE 'group.%')");
+            if(addUid) sql.append("(`user_id`='global' OR `user_id`=?) AND ");
+            else sql.append("`user_id`='global' AND ");
+            sql.append("`channel_id`=? AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
             PreparedStatement pstmt = con.prepareStatement(sql.toString());
+            int added = 0;
+            if (addGid) pstmt.setString(++added, _gid);
+            if (addUid) pstmt.setString(++added, _uid);
+            pstmt.setString(++added, _cid);
+            pstmt.setString(++added, permission);
+            /*
             if(addGid) {
                 pstmt.setString(1, _gid);
                 pstmt.setString(2, _cid);
@@ -135,6 +146,8 @@ public class PermissionUtil {
                 pstmt.setString(1, _cid);
                 pstmt.setString(2, permission);
             }
+
+             */
             ResultSet rs = pstmt.executeQuery();
 
             boolean _set = false;
@@ -142,7 +155,7 @@ public class PermissionUtil {
             boolean _global = false;
             List<String> groups = new ArrayList<>();
             while (rs.next()){
-                if(rs.getString("permission").equalsIgnoreCase(permission) && (rs.getString("user_id").equalsIgnoreCase("global") || rs.getString("user_id").equalsIgnoreCase(userId))){
+                if(rs.getString("permission").equalsIgnoreCase(permission)){
                     if(!_global){//値がないもしくはグローバルが入ってた場合
                         _set = true;
                         _global = rs.getString("user_id").equalsIgnoreCase("global");
@@ -151,6 +164,19 @@ public class PermissionUtil {
                 }
                 if(rs.getString("permission").startsWith("group.")){
                     groups.add(rs.getString("permission"));
+                }
+                if(rs.getString("permission").endsWith(".*")){
+                    String[] permissions = permission.split("\\.");
+                    String[] _perms = rs.getString("permission").split("\\.");
+                    for (int i = 0; i < permissions.length; i++) {
+                        if(permissions[i] != _perms[i]){
+                            if(_perms.length-1 == i && _perms[i].equals("*")){
+                                _set = true;
+                                result.set(rs.getBoolean("value"));
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             rs.close();
@@ -238,10 +264,11 @@ public class PermissionUtil {
         }
         try {
             Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
-            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission` LIKE 'group.%')");
+            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
             pstmt.setString(1, name);
             pstmt.setString(2, permission);
             ResultSet rs = pstmt.executeQuery();
+
             boolean _set = false;
             AtomicBoolean result = new AtomicBoolean(false);
             List<String> groups = new ArrayList<>();
@@ -251,6 +278,19 @@ public class PermissionUtil {
                 }else{
                     _set = true;
                     result.set(rs.getBoolean("value"));
+                }
+                if(rs.getString("permission").endsWith(".*")){
+                    String[] permissions = permission.split("\\.");
+                    String[] _perms = rs.getString("permission").split("\\.");
+                    for (int i = 0; i < permissions.length; i++) {
+                        if(permissions[i] != _perms[i]){
+                            if(_perms.length-1 == i && _perms[i].equals("*")){
+                                _set = true;
+                                result.set(rs.getBoolean("value"));
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             rs.close();

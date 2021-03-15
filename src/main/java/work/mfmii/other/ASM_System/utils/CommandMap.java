@@ -75,11 +75,14 @@ public class CommandMap {
 
         String sentCommandLabel = args[0].toLowerCase();
         CommandManager target = getCommand(sentCommandLabel);
-
+        if(target == null){
+            return false;
+        }
         try {
             target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
         } catch (Throwable ex) {
             System.out.println("Unhandled exception executing '" + commandLine + "' in " + target+ex.getMessage());
+            ex.printStackTrace();
         }
 
         // return true as command was handled

@@ -14,12 +14,9 @@ public class UserInfo extends CommandManager {
     @Override
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
         if(command.equalsIgnoreCase("userinfo") || command.equalsIgnoreCase("user")){
-            System.out.println("OK");
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < args.length; i++) {
-                System.out.println(i+":"+args[i]);
                 if(args[i].equalsIgnoreCase("-p") || args[i].equalsIgnoreCase("-perm") || args[i].equalsIgnoreCase("-permission")){
-                    System.out.println("having Parameter");
                     output.append("PermissionInfo\n");
                     output.append(args[++i]);
                     output.append(": ");
