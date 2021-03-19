@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
@@ -29,26 +30,59 @@ public class UserInfo extends CommandManager {
             final boolean isGuild = event.isFromGuild();
 
             boolean isSelf = true;
+            if (args.length > 0 && args[0].matches("[0-9]{18}")) isSelf = false;
+
+            if(new Config(Config.ConfigType.JSON).getBoolean("debug_mode")) {
+                if (args.length != 0) {
+                    System.out.println("args[0]: " + args[0]);
+                    System.out.println("args[0].matches: " + args[0].matches("$[0-9]{18}"));
+                }
+                System.out.println("args.length: " + args.length);
+                System.out.println("isSelf: " + isSelf);
+            }
             String targetId = isSelf ? sender.getId() : args[0];
             final EmbedBuilder embedBuilder = new EmbedBuilder();
             User target = event.getJDA().getUserById(targetId);
 
 
             StringBuilder output = new StringBuilder();
-            if (args.length > 0 && args[0].matches("$[0-9](18)")) isSelf = false;
             for (int i = 0; i < args.length; i++) {
                 if(i == 0 && !isSelf) i++;
-                if(args[i].equalsIgnoreCase("-p") || args[i].equalsIgnoreCase("-perm") || args[i].equalsIgnoreCase("-permission")){
-                    output.append("\nPermissionInfo\n");
-                    output.append(args[++i]);
-                    output.append(": ");
-                    if(event.isFromGuild()) output.append(new PermissionUtil().hasPermission( event.getGuild().getId(), event.getChannel().getId(), targetId, args[i]));
-                    else output.append(new PermissionUtil().hasPermission(null, null, targetId, args[i]));
-                    output.append("\n");
+                if(args.length-1 > i) {
+                    if (args[i].equalsIgnoreCase("-p") || args[i].equalsIgnoreCase("-perm") || args[i].equalsIgnoreCase("-permission")) {
+                        output.append("\nPermissionInfo\n");
+                        output.append(args[++i]);
+                        output.append(": ");
+                        if (event.isFromGuild())
+                            output.append(new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), targetId, args[i]));
+                        else output.append(new PermissionUtil().hasPermission(null, null, targetId, args[i]));
+                        output.append("\n");
+                    }
                 }
             }
             if(target == null){
-
+                JSONObject jo = new UserUtil(targetId).getUserdataFromHttpApi();
+                if(new Config(Config.ConfigType.JSON).getBoolean("debug_mode")) System.out.println(jo);
+                if(jo.has("message")){
+                    output.append(String.format("\nAPI Error\n```%s```", jo.getString("message")));
+                }else {
+                    String reputation_str;
+                    double reputation = new UserUtil(targetId).getReputation();
+                    if (reputation == -125) {
+                        reputation_str = "**SQL Error!**";
+                    } else if (reputation == -127) {
+                        reputation_str = "未評価";
+                    } else {
+                        reputation_str = String.format("%s / 10.0", reputation);
+                    }
+                    output.append(new LanguageUtil().getMessage(lang, "command.userinfo.content.text").replaceAll("\\$\\{username\\}", jo.getString("username") + "#" + jo.getString("discriminator")));
+                    embedBuilder.setTitle(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.userinfo.content.embed.title"))
+                            .setThumbnail(String.format("https://cdn.discordapp.com/avatars/%s/%s.png?size=128", jo.getString("id"), jo.getString("avatar")));
+                    embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nameid"), String.format("%s\n%s", jo.getString("username") + "#" + jo.getString("discriminator"), targetId), true)
+                            .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.created"), new LanguageUtil().getMessage(lang, "default.unknown"), true);
+                    embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.bot"), new LanguageUtil().getMessage(lang, "default.unknown"), true);
+                    embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.reputation"), reputation_str, true);
+                }
             }else{
                 output.append(new LanguageUtil().getMessage(lang, "command.userinfo.content.text").replaceAll("\\$\\{username\\}", target.getAsTag()));
                 String reputation_str;
@@ -60,12 +94,13 @@ public class UserInfo extends CommandManager {
                 } else {
                     reputation_str = String.format("%s / 10.0", reputation);
                 }
-                embedBuilder.setTitle(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.userinfo.content.embed.title"));
+                embedBuilder.setTitle(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.userinfo.content.embed.title"))
+                        .setThumbnail(target.getAvatarUrl());
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nameid"), String.format("%s\n%s", target.getAsTag(), targetId), true)
                         .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.created"), target.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true);
                 if(isGuild && target.getMutualGuilds().contains(event.getGuild())) embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.status"), event.getMember().getOnlineStatus().name(), true)
                         .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.joined"), event.getGuild().getMember(target).getTimeJoined().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true)
-                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nickname"), event.getGuild().getMember(target).getNickname().isEmpty()?"_なし_":event.getGuild().getMember(target).getNickname(), true);
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nickname"), (event.getGuild().getMember(target).getNickname()==null || event.getGuild().getMember(target).getNickname().isEmpty())?"_なし_":event.getGuild().getMember(target).getNickname(), true);
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.bot"), new LanguageUtil().getMessage(lang, String.format("default.%s", target.isBot()?"yes":"no")), true);
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.reputation"), reputation_str, true);
                 if(isGuild && target.getMutualGuilds().contains(event.getGuild())) {

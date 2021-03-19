@@ -50,7 +50,7 @@ public class UserUtil {
     public JSONObject getUserdataFromHttpApi(){
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/v8/users/%s", userId))
-                .addHeader("Authorization", new Config(Config.ConfigType.JSON).getString("token"))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
                 .build();
         Response response = null;
         try {
