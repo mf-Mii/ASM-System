@@ -20,7 +20,8 @@ public class Help extends CommandManager {
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(event.getAuthor());
         if (command.equalsIgnoreCase("help")) {
             if (!new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), sender.getId(), "asm.command.help")){
-                String output = new LanguageUtil().getMessage(lang, "command.help.permissionMessage");
+                String output = this.getPermissionMessage(lang);
+                if(output==null) output = "500: Internal Error";
                 event.getChannel().sendMessage(output).queue();
                 return true;
             }

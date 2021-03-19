@@ -1,6 +1,7 @@
 package work.mfmii.other.ASM_System.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -27,26 +28,29 @@ public class UserInfo extends CommandManager {
         if(this.getAliases().contains(command) || this.getName().equalsIgnoreCase(command)){
             final boolean isGuild = event.isFromGuild();
 
-            StringBuilder output = new StringBuilder();
-            output.append(new LanguageUtil().getMessage(lang, "command.userinfo.content.text"));
             boolean isSelf = true;
-            if (args[0].matches("$[0-9](18)")) isSelf = false;
+            String targetId = isSelf ? sender.getId() : args[0];
+            final EmbedBuilder embedBuilder = new EmbedBuilder();
+            User target = event.getJDA().getUserById(targetId);
+
+
+            StringBuilder output = new StringBuilder();
+            if (args.length > 0 && args[0].matches("$[0-9](18)")) isSelf = false;
             for (int i = 0; i < args.length; i++) {
                 if(i == 0 && !isSelf) i++;
                 if(args[i].equalsIgnoreCase("-p") || args[i].equalsIgnoreCase("-perm") || args[i].equalsIgnoreCase("-permission")){
                     output.append("\nPermissionInfo\n");
                     output.append(args[++i]);
                     output.append(": ");
-                    output.append(new PermissionUtil().hasPermission(null,null,sender.getId(), args[i]));
+                    if(event.isFromGuild()) output.append(new PermissionUtil().hasPermission( event.getGuild().getId(), event.getChannel().getId(), targetId, args[i]));
+                    else output.append(new PermissionUtil().hasPermission(null, null, targetId, args[i]));
                     output.append("\n");
                 }
             }
-            String targetId = isSelf ? sender.getId() : args[0];
-            final EmbedBuilder embedBuilder = new EmbedBuilder();
-            User target = event.getJDA().getUserById(targetId);
             if(target == null){
 
             }else{
+                output.append(new LanguageUtil().getMessage(lang, "command.userinfo.content.text").replaceAll("\\$\\{username\\}", target.getAsTag()));
                 String reputation_str;
                 double reputation = new UserUtil(target).getReputation();
                 if (reputation == -125){
@@ -60,8 +64,8 @@ public class UserInfo extends CommandManager {
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nameid"), String.format("%s\n%s", target.getAsTag(), targetId), true)
                         .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.created"), target.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true);
                 if(isGuild && target.getMutualGuilds().contains(event.getGuild())) embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.status"), event.getMember().getOnlineStatus().name(), true)
-                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.joined"), event.getMember().getTimeJoined().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true)
-                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nickname"), event.getMember().getNickname(), true);
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.joined"), event.getGuild().getMember(target).getTimeJoined().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true)
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nickname"), event.getGuild().getMember(target).getNickname().isEmpty()?"_なし_":event.getGuild().getMember(target).getNickname(), true);
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.bot"), new LanguageUtil().getMessage(lang, String.format("default.%s", target.isBot()?"yes":"no")), true);
                 embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.reputation"), reputation_str, true);
                 if(isGuild && target.getMutualGuilds().contains(event.getGuild())) {
@@ -91,7 +95,8 @@ public class UserInfo extends CommandManager {
 
 
             }
-            event.getChannel().sendMessage(output.toString()).embed(embedBuilder.build()).queue();
+            if (!embedBuilder.isEmpty())event.getChannel().sendMessage(output.toString()).embed(embedBuilder.build()).queue();
+            else event.getChannel().sendMessage(output.toString()).queue();
             return true;
         }
         return false;

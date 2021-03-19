@@ -4,10 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import work.mfmii.other.ASM_System.Config;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PermissionUtil {
@@ -127,10 +124,10 @@ public class PermissionUtil {
             Connection con = new MySQLUtil().getConnection();
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
-            if(addGid) sql.append("`guild_id`=? AND ");
+            if(addGid) sql.append("(`guild_id`=? OR `guild_ud`='global')AND ");
             if(addUid) sql.append("(`user_id`='global' OR `user_id`=?) AND ");
             else sql.append("`user_id`='global' AND ");
-            sql.append("`channel_id`=? AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
+            sql.append("(`channel_id`=? OR `channel_id`='global') AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
             PreparedStatement pstmt = con.prepareStatement(sql.toString());
             int added = 0;
             if (addGid) pstmt.setString(++added, _gid);
@@ -150,30 +147,55 @@ public class PermissionUtil {
              */
             ResultSet rs = pstmt.executeQuery();
 
-            boolean _set = false;
             AtomicBoolean result = new AtomicBoolean(false);
-            boolean _global = false;
+            boolean _uglobal = true;
+            boolean _cglobal = true;
+            boolean _gglobal = true;
+            String[] _ids = {"","",""};
             List<String> groups = new ArrayList<>();
+            int last_lev = 0;
             while (rs.next()){
-                if(rs.getString("permission").equalsIgnoreCase(permission)){
-                    if(!_global){//値がないもしくはグローバルが入ってた場合
-                        _set = true;
-                        _global = rs.getString("user_id").equalsIgnoreCase("global");
+
+                int level = 0;
+                boolean _isgglobal = rs.getString("guild_id").equalsIgnoreCase("global");
+                boolean _iscglobal = rs.getString("channel_id").equalsIgnoreCase("global");
+                boolean _isuglobal = rs.getString("user_id").equalsIgnoreCase("global");
+                boolean _isgroup = false;
+                if (rs.getString("permission").startsWith("group.")) _isgroup = true;
+
+                //権限のレベルを設定
+                if (!_isgglobal && _iscglobal && _isuglobal && _isgroup) level=1;
+                if (!_isgglobal && _iscglobal && _isuglobal && !_isgroup) level=2;
+                if (!_iscglobal && _isuglobal && _isgroup) level = 3;
+                if (!_iscglobal && _isuglobal && !_isgroup) level = 4;
+                if (!_isgglobal && _iscglobal && !_isuglobal && _isgroup) level = 5;
+                if (!_isgglobal && _iscglobal && !_isuglobal && !_isgroup) level = 6;
+                if (!_iscglobal && !_isuglobal && _isgroup) level = 7;
+                if (!_iscglobal && !_isuglobal && !_isgroup) level = 8;
+                if (_isgglobal && _iscglobal && !_isuglobal && _isgroup) level = 9;
+                if (_isgglobal && _iscglobal && !_isuglobal && !_isgroup) level = 10;
+
+                if (last_lev < level){
+                    if(rs.getString("permission").equalsIgnoreCase(permission)) {
                         result.set(rs.getBoolean("value"));
+                        last_lev = level;
                     }
-                }
-                if(rs.getString("permission").startsWith("group.")){
-                    groups.add(rs.getString("permission"));
-                }
-                if(rs.getString("permission").endsWith(".*")){
-                    String[] permissions = permission.split("\\.");
-                    String[] _perms = rs.getString("permission").split("\\.");
-                    for (int i = 0; i < permissions.length; i++) {
-                        if(permissions[i] != _perms[i]){
-                            if(_perms.length-1 == i && _perms[i].equals("*")){
-                                _set = true;
-                                result.set(rs.getBoolean("value"));
-                                break;
+                    if (rs.getString("permission").startsWith("group.")) {//グループの場合、groupsに追加
+                        if(hasPermissionInGroup(rs.getString("permission").replaceFirst("group\\.", ""), permission)){
+                            result.set(rs.getBoolean("value"));
+                            last_lev = level;
+                        }
+                    }
+                    if(rs.getString("permission").endsWith(".*")){//*があった場合の一致確認
+                        String[] permissions = permission.split("\\.");
+                        String[] _perms = rs.getString("permission").split("\\.");
+                        for (int i = 0; i < permissions.length; i++) {
+                            if(permissions[i] != _perms[i]){
+                                if(_perms.length-1 == i && _perms[i].equals("*")){
+                                    result.set(rs.getBoolean("value"));
+                                    last_lev = level;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -182,13 +204,7 @@ public class PermissionUtil {
             rs.close();
             pstmt.close();
             con.close();
-            if(!_set){
-                groups.forEach(k -> {
-                    if(hasPermissionInGroup(k.replaceFirst("group\\.", ""), permission)){
-                        result.set(true);
-                    }
-                });
-            }
+
             return result.get();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
