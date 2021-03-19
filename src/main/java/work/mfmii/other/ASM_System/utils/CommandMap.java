@@ -101,4 +101,8 @@ public class CommandMap {
         return target;
     }
 
+    public Collection<CommandManager> getCommands() {
+        return Collections.unmodifiableCollection(knownCommands.values());
+    }
+
 }

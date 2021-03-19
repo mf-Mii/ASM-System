@@ -32,7 +32,7 @@ public class PermissionUtil {
             return result;
         }
         try {
-            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            Connection con = new MySQLUtil().getConnection();
             /*
             StringBuilder sql_build = new StringBuilder();
             sql_build.append("SELECT * FROM `dc_perm_each` WHERE ");
@@ -124,7 +124,7 @@ public class PermissionUtil {
             String _uid = (userId == null || userId.length() != 18) ? "global" : userId;
             if (!_cid.equals("global")) addGid = false;
             if (!_uid.equals("global")) addUid = true;
-            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            Connection con = new MySQLUtil().getConnection();
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
             if(addGid) sql.append("`guild_id`=? AND ");
@@ -206,11 +206,11 @@ public class PermissionUtil {
 
     public Map<String, Boolean> getGroupPermissions(@NotNull String name){
         Map<String, Boolean> result = new HashMap<>();
-        if(name == null || name.isEmpty()){
+        if(name.isEmpty()){
             return result;
         }
         try {
-            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            Connection con = new MySQLUtil().getConnection();
             PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=?");
             pstmt.setString(1, name);
             ResultSet rs = pstmt.executeQuery();
@@ -263,7 +263,7 @@ public class PermissionUtil {
             return false;
         }
         try {
-            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            Connection con = new MySQLUtil().getConnection();
             PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_perm_group_perms` WHERE `name`=? AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
             pstmt.setString(1, name);
             pstmt.setString(2, permission);

@@ -2,6 +2,10 @@ package work.mfmii.other.ASM_System.utils;
 
 import work.mfmii.other.ASM_System.Config;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 public class MySQLUtil {
     public MySQLUtil(){}
 
@@ -19,5 +23,9 @@ public class MySQLUtil {
 
     public String getPassword(){
         return new Config(Config.ConfigType.JSON).getString("mysql.pass");
+    }
+
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(getUrl(), getUser(), getPassword());
     }
 }

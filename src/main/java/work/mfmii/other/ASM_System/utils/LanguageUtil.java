@@ -30,7 +30,7 @@ public class LanguageUtil {
 
     public Language getUserLanguageById(String userId){
         try {
-            Connection con = DriverManager.getConnection(new MySQLUtil().getUrl(), new MySQLUtil().getUser(), new MySQLUtil().getPassword());
+            Connection con = new MySQLUtil().getConnection();
             PreparedStatement pstmt = con.prepareStatement("SELECT lang FROM dc_user WHERE id=?");
             pstmt.setString(1, userId);
             ResultSet rs = pstmt.executeQuery();

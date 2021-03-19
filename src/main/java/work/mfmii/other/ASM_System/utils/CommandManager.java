@@ -51,25 +51,6 @@ public abstract class CommandManager {
     }
 
     /**
-     * Sets the name of this command.
-     * <p>
-     * May only be used before registering the command.
-     * Will return true if the new name is set, and false
-     * if the command has already been registered.
-     *
-     * @param name New command name
-     * @return returns true if the name change happened instantly or false if
-     *     the command was already registered
-     */
-    public boolean setName(@NotNull String name) {
-        if (!isRegistered()) {
-            this.name = (name == null) ? "" : name;
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Gets the permission required by users to be able to perform this
      * command
      *
@@ -151,9 +132,6 @@ public abstract class CommandManager {
      *     the command was already registered
      */
     public boolean setLabel(@NotNull String name) {
-        if (name == null) {
-            name = "";
-        }
         this.nextLabel = name;
         if (!isRegistered()) {
             this.label = name;
@@ -185,7 +163,7 @@ public abstract class CommandManager {
     @Nullable
     public String getPermissionMessage(LanguageUtil.Language lang) {
         String message = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".permissionMessage");
-        message = message.replaceAll("\\$\\{default\\.permissionMessage\\}", new LanguageUtil().getMessage(lang, "default.permissionMessage"));
+        message = message.replaceAll("\\$\\{default\\}", new LanguageUtil().getMessage(lang, "default.permissionMessage"));
         return message;
     }
 
@@ -197,7 +175,7 @@ public abstract class CommandManager {
     @NotNull
     public String getDescription(LanguageUtil.Language lang) {
         String description = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".description");
-        description = description.replaceAll("\\$\\{default\\.description\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".description"));
+        description = description.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".description"));
         return description;
     }
 
@@ -209,7 +187,7 @@ public abstract class CommandManager {
     @NotNull
     public String getAbout(LanguageUtil.Language lang) {
         String about = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".about");
-        about = about.replaceAll("\\$\\{default\\.about\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".about"));
+        about = about.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".about"));
         return about;
     }
 
@@ -222,9 +200,19 @@ public abstract class CommandManager {
     @NotNull
     public String getUsage(LanguageUtil.Language lang) {
         String usage = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".usage");
-        usage = usage.replaceAll("\\$\\{default\\.usage\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
+        usage = usage.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
         usage = usage.replaceAll("\\$\\{prefix\\}", new Config(Config.ConfigType.JSON).getString("prefix"));
         return usage;
+    }
+
+    /**
+     * Check it is the command for admins
+     *
+     * @return Boolean true is admin command
+     */
+    @NotNull
+    public boolean isAdminCommand(){
+        return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "uft8")), this.name+".isAdmin");
     }
 
 

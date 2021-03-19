@@ -1,10 +1,20 @@
 package work.mfmii.other.ASM_System.command;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
+import work.mfmii.other.ASM_System.utils.LanguageUtil;
 import work.mfmii.other.ASM_System.utils.PermissionUtil;
+import work.mfmii.other.ASM_System.utils.UserUtil;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UserInfo extends CommandManager {
     public UserInfo(String name){
@@ -13,18 +23,75 @@ public class UserInfo extends CommandManager {
 
     @Override
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
-        if(command.equalsIgnoreCase("userinfo") || command.equalsIgnoreCase("user")){
+        LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(event.getAuthor());
+        if(this.getAliases().contains(command) || this.getName().equalsIgnoreCase(command)){
+            final boolean isGuild = event.isFromGuild();
+
             StringBuilder output = new StringBuilder();
+            output.append(new LanguageUtil().getMessage(lang, "command.userinfo.content.text"));
+            boolean isSelf = true;
+            if (args[0].matches("$[0-9](18)")) isSelf = false;
             for (int i = 0; i < args.length; i++) {
+                if(i == 0 && !isSelf) i++;
                 if(args[i].equalsIgnoreCase("-p") || args[i].equalsIgnoreCase("-perm") || args[i].equalsIgnoreCase("-permission")){
-                    output.append("PermissionInfo\n");
+                    output.append("\nPermissionInfo\n");
                     output.append(args[++i]);
                     output.append(": ");
                     output.append(new PermissionUtil().hasPermission(null,null,sender.getId(), args[i]));
                     output.append("\n");
                 }
             }
-            event.getChannel().sendMessage(output.toString()).queue();
+            String targetId = isSelf ? sender.getId() : args[0];
+            final EmbedBuilder embedBuilder = new EmbedBuilder();
+            User target = event.getJDA().getUserById(targetId);
+            if(target == null){
+
+            }else{
+                String reputation_str;
+                double reputation = new UserUtil(target).getReputation();
+                if (reputation == -125){
+                    reputation_str = "**SQL Error!**";
+                } else if (reputation == -127){
+                    reputation_str = "未評価";
+                } else {
+                    reputation_str = String.format("%s / 10.0", reputation);
+                }
+                embedBuilder.setTitle(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.userinfo.content.embed.title"));
+                embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nameid"), String.format("%s\n%s", target.getAsTag(), targetId), true)
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.created"), target.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true);
+                if(isGuild && target.getMutualGuilds().contains(event.getGuild())) embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.status"), event.getMember().getOnlineStatus().name(), true)
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.joined"), event.getMember().getTimeJoined().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true)
+                        .addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.nickname"), event.getMember().getNickname(), true);
+                embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.bot"), new LanguageUtil().getMessage(lang, String.format("default.%s", target.isBot()?"yes":"no")), true);
+                embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.reputation"), reputation_str, true);
+                if(isGuild && target.getMutualGuilds().contains(event.getGuild())) {
+                    final List<String> role_mentions = new ArrayList<>();
+                    event.getMember().getRoles().forEach(role -> {
+                        role_mentions.add(role.getAsMention());
+                    });
+                    embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.roles"), String.join(",", role_mentions), false);
+                    final Map<String, List<String>> perms_map = new HashMap<>();
+                    event.getMember().getPermissions(event.getJDA().getGuildChannelById(event.getChannel().getId())).forEach(permission -> {
+                        String perm_key = new Config(Config.ConfigType.DEFAULT).getString("permissions."+permission.getName());
+                        String group = perm_key.split("\\.")[0];
+                        final List<String> _perms;
+                        if(!perms_map.containsKey(group)){
+                            _perms = new ArrayList<>();
+                        }else{
+                            _perms = perms_map.get(group);
+                        }
+                        _perms.add("`"+new LanguageUtil().getMessage(lang, "default.permissions."+perm_key)+"`");
+                        perms_map.put(group, _perms);
+                    });
+                    embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.perms"), "", false);
+                    perms_map.forEach((k, v) -> {
+                        embedBuilder.addField(new LanguageUtil().getMessage(lang, "default.permissions."+k+".name"), String.join(", ", v), false);
+                    });
+                }
+
+
+            }
+            event.getChannel().sendMessage(output.toString()).embed(embedBuilder.build()).queue();
             return true;
         }
         return false;

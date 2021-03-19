@@ -101,7 +101,8 @@ public class Config {
             String conf_raw = new FileUtil().readFile(new FileUtil().getFile("config.json"), "utf8");
             return conf_raw;
         }else if(type.equals(ConfigType.DEFAULT.getKey())){
-            return null;
+            String conf_raw = new FileUtil().readFile(new FileUtil().getFile("default.json"), "utf8");
+            return conf_raw;
         }else{
             return null;
         }
