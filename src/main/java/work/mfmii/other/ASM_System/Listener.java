@@ -21,8 +21,11 @@ public class Listener implements EventListener {
         if(event instanceof MessageReceivedEvent){
             MessageReceivedEvent mEvent = (MessageReceivedEvent) event;
             System.out.println("LOG: "+mEvent.getMessage());
-            if (mEvent.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("prefix")); {
+            if (mEvent.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("prefix"))) {
                 boolean exec_res = new CommandMap().dispatch(mEvent.getAuthor(), mEvent.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), mEvent);
+                if (!exec_res){
+                    mEvent.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(mEvent.getAuthor()), "command.unknown")).queue();
+                }
             }
         }
     }
