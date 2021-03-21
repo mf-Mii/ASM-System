@@ -1,11 +1,8 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-import work.mfmii.other.ASM_System.Config;
 
 import java.util.*;
 import java.util.regex.Pattern;

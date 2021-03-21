@@ -1,13 +1,11 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import work.mfmii.other.ASM_System.ASMSystem;
-import work.mfmii.other.ASM_System.Config;
 
 import java.io.IOException;
 import java.sql.Connection;

@@ -7,7 +7,7 @@ import work.mfmii.other.ASM_System.utils.FileUtil;
 import java.util.*;
 
 public class Config {
-    private String type = null;
+    private String type;
     public Config(ConfigType configType){
         type = configType.getKey();
     }

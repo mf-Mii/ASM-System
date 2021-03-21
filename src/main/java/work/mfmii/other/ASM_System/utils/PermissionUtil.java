@@ -34,34 +34,6 @@ public class PermissionUtil {
         }
         try {
             Connection con = new MySQLUtil().getConnection();
-            /*
-            StringBuilder sql_build = new StringBuilder();
-            sql_build.append("SELECT * FROM `dc_perm_each` WHERE ");
-            List<String> value_list = new ArrayList<>();
-            boolean isFirstArg = true;
-            if(!guildId.isEmpty()){
-                isFirstArg = false;
-                sql_build.append("`guild_id`=?");
-                value_list.add(guildId);
-            }
-            if(!channelId.isEmpty()){
-                if (!isFirstArg) sql_build.append(" AND ");
-                else isFirstArg = false;
-                sql_build.append("`channel_id`=?");
-                value_list.add(channelId);
-            }
-            if(!userId.isEmpty()){
-                if (!isFirstArg) sql_build.append(" AND ");
-                else isFirstArg = false;
-                sql_build.append("`user_id`=?");
-                value_list.add(userId);
-            }
-
-            PreparedStatement pstmt = con.prepareStatement(sql_build.toString());
-            for (int i = 0; i < value_list.size(); i++) {
-                pstmt.setString(i+1, value_list.get(i));
-            }
-             */
             String sql = "SELECT * FROM `dc_perm_each` WHERE `guild_id`=? AND `channel_id`=? AND `user_id`=?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, (guildId == null || guildId.length() != 18) ? "global" : guildId);
