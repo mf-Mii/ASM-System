@@ -76,6 +76,7 @@ public class CommandMap {
         String sentCommandLabel = args[0].toLowerCase();
         CommandManager target = getCommand(sentCommandLabel);
         if(target == null){
+            event.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.unknown")).queue();
             return false;
         }
         try {

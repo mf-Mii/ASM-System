@@ -1,6 +1,7 @@
 package work.mfmii.other.ASM_System.utils;
 
 import org.jetbrains.annotations.NotNull;
+import work.mfmii.other.ASM_System.ASMSystem;
 import work.mfmii.other.ASM_System.Config;
 
 import java.sql.*;
@@ -8,7 +9,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PermissionUtil {
-    public PermissionUtil(){}
+    private boolean isDebug = false;
+    public PermissionUtil(){
+        isDebug = new Config(Config.ConfigType.JSON).isDebugMode();
+    }
 
     public Map<String, Boolean> getPermissionsByGuildId(String guildId){
         return getPermissions(guildId, null, null);
@@ -111,24 +115,55 @@ public class PermissionUtil {
 
     public boolean hasPermission(String guildId, String channelId, String userId, @NotNull String permission){
         if((guildId == null || guildId.length() != 18) && (channelId == null || channelId.length() != 18) && (userId == null || userId.length() != 18)){
+            if (isDebug){
+                System.out.println("Some of id's length weren't 18.");
+                System.out.println(guildId.length()+"("+guildId+")\n"+channelId.length()+"("+channelId+")\n"+userId.length()+"("+userId+")");
+            }
             return false;
         }
+
         try {
             boolean addGid = true;
             boolean addUid = false;
             String _gid = (guildId == null || guildId.length() != 18) ? "global" : guildId;
             String _cid = (channelId == null || channelId.length() != 18) ? "global" : channelId;
-            String _uid = (userId == null || userId.length() != 18) ? "global" : userId;
+            String _uid = (userId == null) ? "global" : userId;
+            if(userId != null && ASMSystem.jda.getUserById(userId) == null){
+                if(isDebug) System.out.println("JDA couldn't find user that id is "+userId);
+                return false;
+            }
             if (!_cid.equals("global")) addGid = false;
             if (!_uid.equals("global")) addUid = true;
             Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_user` WHERE `id`=?");
+            pstmt.setString(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (isDebug){
+                System.out.println("GuildID: "+guildId.length()+"("+guildId+")\nChannelID: "+channelId.length()+"("+channelId+")\nUserID: "+userId.length()+"("+userId+")");
+                System.out.println("_gid: "+_gid+", _cid: "+_cid+", _uid: "+_uid);
+            }
+            if(!rs.next()){
+                if (isDebug){
+                    System.out.println("There is not data of the user in users database");
+                }
+                pstmt = con.prepareStatement("INSERT INTO `dc_user` (`id`, `isBot`) VALUES (?, ?)");
+                pstmt.setString(1, userId);
+                pstmt.setBoolean(2, ASMSystem.jda.getUserById(userId).isBot());
+                pstmt.execute();
+                pstmt = con.prepareStatement("INSERT INTO `dc_perm_each` (`permission`, `user_id`, `value`) VALUES ('group.default', ?, 1)");
+                pstmt.setString(1, userId);
+                pstmt.execute();
+            }
+            rs.close();
+            pstmt.close();
+
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
             if(addGid) sql.append("(`guild_id`=? OR `guild_ud`='global')AND ");
             if(addUid) sql.append("(`user_id`='global' OR `user_id`=?) AND ");
             else sql.append("`user_id`='global' AND ");
             sql.append("(`channel_id`=? OR `channel_id`='global') AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
-            PreparedStatement pstmt = con.prepareStatement(sql.toString());
+            pstmt = con.prepareStatement(sql.toString());
             int added = 0;
             if (addGid) pstmt.setString(++added, _gid);
             if (addUid) pstmt.setString(++added, _uid);
@@ -145,14 +180,9 @@ public class PermissionUtil {
             }
 
              */
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
 
             AtomicBoolean result = new AtomicBoolean(false);
-            boolean _uglobal = true;
-            boolean _cglobal = true;
-            boolean _gglobal = true;
-            String[] _ids = {"","",""};
-            List<String> groups = new ArrayList<>();
             int last_lev = 0;
             while (rs.next()){
 
@@ -174,6 +204,10 @@ public class PermissionUtil {
                 if (!_iscglobal && !_isuglobal && !_isgroup) level = 8;
                 if (_isgglobal && _iscglobal && !_isuglobal && _isgroup) level = 9;
                 if (_isgglobal && _iscglobal && !_isuglobal && !_isgroup) level = 10;
+
+                if (isDebug){
+                    System.out.println("last_lev: "+last_lev+", level: "+level);
+                }
 
                 if (last_lev < level){
                     if(rs.getString("permission").equalsIgnoreCase(permission)) {

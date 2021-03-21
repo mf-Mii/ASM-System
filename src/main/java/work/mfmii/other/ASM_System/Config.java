@@ -108,6 +108,10 @@ public class Config {
         }
     }
 
+    public boolean isDebugMode(){
+        return new Config(ConfigType.JSON).getBoolean("debug_mode");
+    }
+
     public enum ConfigType{
         JSON("json"),
         DEFAULT("default"),

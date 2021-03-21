@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.CommandMap;
+import work.mfmii.other.ASM_System.utils.LanguageUtil;
 
 public class Listener implements EventListener {
 
@@ -20,7 +21,9 @@ public class Listener implements EventListener {
         if(event instanceof MessageReceivedEvent){
             MessageReceivedEvent mEvent = (MessageReceivedEvent) event;
             System.out.println("LOG: "+mEvent.getMessage());
-            boolean exec_res = new CommandMap().dispatch(mEvent.getAuthor(), mEvent.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), mEvent);
+            if (mEvent.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("prefix")); {
+                boolean exec_res = new CommandMap().dispatch(mEvent.getAuthor(), mEvent.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), mEvent);
+            }
         }
     }
 }
