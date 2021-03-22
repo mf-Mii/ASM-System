@@ -75,11 +75,15 @@ public class CommandMap {
         if(target == null){
             return false;
         }
-        try {
-            target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
-        } catch (Throwable ex) {
-            System.out.println("Unhandled exception executing '" + commandLine + "' in " + target+ex.getMessage());
-            ex.printStackTrace();
+        if (new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), sender.getId(), target.getPermission())) {
+            try {
+                target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
+            } catch (Throwable ex) {
+                System.out.println("Unhandled exception executing '" + commandLine + "' in " + target + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }else {
+            event.getChannel().sendMessage(target.getPermissionMessage(new LanguageUtil().getUserLanguage(sender))).queue();
         }
 
         // return true as command was handled

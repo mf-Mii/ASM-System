@@ -87,6 +87,10 @@ public abstract class EventManager {
         return (null != this.eventMap);
     }
 
+    @Nullable
+    public Class getEventType(){
+        return this.eventType;
+    }
 
     /**
      * Returns a message to be displayed on a failed permission check for this
