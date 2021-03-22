@@ -45,7 +45,9 @@ public class Help extends CommandManager {
                 new CommandMap().getCommands().forEach(commandManager -> {
                     if (!_added.contains(commandManager.getName()) && new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), sender.getId(), commandManager.getPermission())) {
                         String aliases_str = !commandManager.getAliases().isEmpty()?"["+String.join(" | ", commandManager.getAliases())+"]":"";
-                        eb.addField(commandManager.getName()+aliases_str, commandManager.getAbout(lang), false);
+                        String _s1 = commandManager.getUsage(lang).replaceAll("\\$\\{command\\}", new Config(Config.ConfigType.JSON).getString("prefix") + commandManager.getName() + aliases_str);
+                        String _s2 = commandManager.getAbout(lang);
+                        eb.addField(_s1, _s2, false);
                         _added.add(commandManager.getName());
                     }
                 });
@@ -56,7 +58,20 @@ public class Help extends CommandManager {
                 StringBuilder sb = new StringBuilder();
                 sb.append(new LanguageUtil().getMessage(lang, "command.help.content.text").replaceAll("\\$\\{prefix\\}", new Config(Config.ConfigType.JSON).getString("prefix")));
 
-
+                final List<String> _added = new ArrayList<>();
+                new CommandMap().getCommands().forEach(commandManager -> {
+                    if (!_added.contains(commandManager.getName()) && new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), sender.getId(), commandManager.getPermission())) {
+                        String _out;
+                        String aliases_str = !commandManager.getAliases().isEmpty()?"["+String.join(" | ", commandManager.getAliases())+"]":"";
+                        _out = "\n**"+commandManager.getUsage(lang).replaceAll("\\$\\{command\\}", new Config(Config.ConfigType.JSON).getString("prefix")+commandManager.getName()+aliases_str)+"**\n"+commandManager.getAbout(lang);
+                        if (sb.length()+_out.length() > 2000){
+                            event.getChannel().sendMessage(sb.toString()).queue();
+                            sb.delete(0, 2000);
+                        }
+                        sb.append(_out);
+                        _added.add(commandManager.getName());
+                    }
+                });
                 event.getChannel().sendMessage(sb.toString()).queue();
             }
             return true;

@@ -197,8 +197,7 @@ public abstract class CommandManager {
     @NotNull
     public String getUsage(LanguageUtil.Language lang) {
         String usage = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".usage");
-        usage = usage.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
-        usage = usage.replaceAll("\\$\\{prefix\\}", new Config(Config.ConfigType.JSON).getString("prefix"));
+        if (usage.contains("${default}")) usage = usage.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
         return usage;
     }
 
