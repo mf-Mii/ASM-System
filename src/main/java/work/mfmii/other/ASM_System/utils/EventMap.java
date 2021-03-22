@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class EventMap {
     private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", Pattern.LITERAL);
-    protected static final List<Map<Class, EventManager>> registeredEventListeners = new ArrayList<>();
+    protected static final Map<Class, List<EventManager>> registeredEventListeners = new HashMap<>();
 
     public boolean register(@NotNull EventManager eventManager){
         boolean registered = register(eventManager.getEventType(), eventManager);
@@ -22,23 +22,30 @@ public class EventMap {
     }
 
     public synchronized boolean register(@NotNull Class eventType, @NotNull EventManager eventManager){
-        Map<Class, EventManager> _mng = new HashMap<>();
-        _mng.put(eventType, eventManager);
-        registeredEventListeners.add(_mng);
+        List<EventManager> _managers;
+        if (registeredEventListeners.containsKey(eventType)) {
+            _managers = registeredEventListeners.get(eventType);
+            _managers.add(eventManager);
+            registeredEventListeners.put(eventType, _managers);
+        } else {
+            _managers = new ArrayList<>();
+            _managers.add(eventManager);
+            registeredEventListeners.put(eventType, _managers);
+        }
 
         return true;
     }
 
-    public boolean dispatch(@NotNull Class eventType, User sender, @NotNull Event event) {
+    public boolean dispatch(@NotNull Class eventType, @NotNull GenericEvent event) {
         //String[] args = PATTERN_ON_SPACE.split(commandLine);
 
-        List<EventManager> targets = getListeners(eventType);
+        List<EventManager> targets = getEventListeners(eventType);
         if(targets == null || targets.isEmpty()){
             return false;
         }
         for (EventManager target: targets) {
             try {
-                target.execute(sender, event);
+                target.execute(event);
             } catch (Throwable ex) {
                 System.out.println("Unhandled exception executing '" + target.getEventType().getName() + "' in " + target + ex.getMessage());
                 ex.printStackTrace();
@@ -50,24 +57,21 @@ public class EventMap {
     }
 
     public synchronized void clearListeners() {
-        for (Map<Class, EventManager> _map: registeredEventListeners) {
-            for (Map.Entry<Class, EventManager> entry : _map.entrySet()) {
-                entry.getValue().unregister(this);
-            }
-        }
+        registeredEventListeners.forEach((type, eventManagers) -> {
+            eventManagers.forEach(listener -> {
+                listener.unregister(this);
+            });
+        });
         registeredEventListeners.clear();
     }
 
-    public List<EventManager> getListeners(Class eventType) {
-        List<EventManager> _temp = new ArrayList<>();
-        for (Map<Class, EventManager> _map: registeredEventListeners) {
-            _temp.add(_map.get(eventType));
-            _map.values();
-        }
-        return _temp;
+    public List<EventManager> getEventListeners(Class eventType) {
+        if (registeredEventListeners.containsKey(eventType))
+            return registeredEventListeners.get(eventType);
+        else return null;
     }
 
-    public ListIterator<Map<Class, EventManager>> getListeners() {
-        return registeredEventListeners.listIterator();
+    public Map<Class, List<EventManager>> getAllEventListeners() {
+        return registeredEventListeners;
     }
 }

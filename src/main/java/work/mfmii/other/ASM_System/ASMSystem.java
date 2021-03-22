@@ -34,8 +34,5 @@ public class ASMSystem {
         jda.getPresence().setActivity(Activity.playing(
                 new Config(Config.ConfigType.JSON).getString("activity.name").replaceAll("\\$\\{guilds\\.count\\}",  String.valueOf(jda.getGuilds().size())).replaceAll("\\$\\{members\\.count\\}", String.valueOf(jda.getUsers().size()))
         ));
-        new CommandMap().register(new Help("help"));
-        new CommandMap().register(new UserInfo("userinfo"));
-        new CommandMap().register(new Reboot("reboot"));
     }
 }

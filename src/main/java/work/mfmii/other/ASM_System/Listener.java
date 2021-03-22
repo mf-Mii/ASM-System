@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import work.mfmii.other.ASM_System.utils.CommandMap;
+import work.mfmii.other.ASM_System.utils.EventMap;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
 
 public class Listener implements EventListener {
@@ -25,7 +26,7 @@ public class Listener implements EventListener {
             }
         }else if(genericEvent instanceof GuildJoinEvent){
             GuildJoinEvent event = (GuildJoinEvent) genericEvent;
-
+            new EventMap().dispatch(GuildJoinEvent.class, genericEvent);
         }
     }
 }
