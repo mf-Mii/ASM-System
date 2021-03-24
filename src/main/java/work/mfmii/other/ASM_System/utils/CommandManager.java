@@ -208,7 +208,7 @@ public abstract class CommandManager {
      */
     @NotNull
     public boolean isAdminCommand(){
-        return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "uft8")), this.name+".isAdmin");
+        return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8")), this.name+".isAdmin");
     }
 
 
