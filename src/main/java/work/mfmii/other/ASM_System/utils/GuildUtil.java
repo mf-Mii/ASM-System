@@ -51,10 +51,10 @@ public class GuildUtil {
             if (rs.next())
                 return LanguageUtil.Language.fromKey(rs.getString("lang"));
             else
-                return null;
+                return LanguageUtil.Language.OTHER;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            return null;
+            return LanguageUtil.Language.OTHER;
         }
     }
 }
