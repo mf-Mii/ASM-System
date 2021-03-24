@@ -19,6 +19,11 @@ public class Shutdown extends CommandManager {
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.shutdown.message")).queue();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         shutdown();
         return true;
     }

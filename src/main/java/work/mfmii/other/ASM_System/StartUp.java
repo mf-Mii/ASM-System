@@ -13,7 +13,7 @@ public class StartUp {
         cmap.register(new UserInfo("userinfo"));
         cmap.register(new Reboot("reboot"));
         cmap.register(new Shutdown("shutdown"));
-        //cmap.register(new Leave("leave"));
+        cmap.register(new Leave("leave"));
 
         EventMap emap = new EventMap();
         emap.register(new GuildJoin(GuildJoinEvent.class));
