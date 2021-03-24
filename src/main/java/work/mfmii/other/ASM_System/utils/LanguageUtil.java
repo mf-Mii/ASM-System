@@ -76,7 +76,7 @@ public class LanguageUtil {
             return key;
         }
 
-        public Language fromKey(String key){
+        public static Language fromKey(String key){
             for (Language type: values()) {
                 if(type.equals(key.toLowerCase())){
                     return type;
