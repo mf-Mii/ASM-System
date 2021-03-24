@@ -41,4 +41,20 @@ public class GuildUtil {
             return false;
         }
     }
+
+    public LanguageUtil.Language getLanguage(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `lang` FROM `dc_guild` WHERE `id`=?");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+                return LanguageUtil.Language.fromKey(rs.getString("lang"));
+            else
+                return null;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
 }
