@@ -43,6 +43,9 @@ public class Leave extends CommandManager {
                 }
             }
         }
+        if (reason.isEmpty()){
+            reason.add("__なし__");
+        }
         if (targetId == null){
             event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.leave.error.not-guild")).queue();
             if(debug)System.out.println("targetId is null");
@@ -60,7 +63,9 @@ public class Leave extends CommandManager {
             if(debug)System.out.println("guild not found.");
             return true;
         }
-
+        if(debug){
+            System.out.println("GuildLang: "+new GuildUtil(targetId).getLanguage()+"("+new GuildUtil(targetId).getLanguage().getKey()+")");
+        }
         event.getChannel().sendMessage(String.format(new LanguageUtil().getMessage(new GuildUtil(targetId).getLanguage(), "command.leave.success.channel"), String.join(" ", reason))).queue();
 
         g.leave().queue();
