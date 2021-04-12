@@ -132,7 +132,7 @@ public class UserInfo extends CommandManager {
                         });
                         embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.content.embed.field.perms"), "", false);
                         perms_map.forEach((k, v) -> {
-                            embedBuilder.addField(new LanguageUtil().getMessage(lang, "default.permissions." + k + ".name"), String.join(", ", v), false);
+                            embedBuilder.addField("> **"+new LanguageUtil().getMessage(lang, "default.permissions." + k + ".name")+"**", String.join(", ", v), false);
                         });
                     }
                     if(new Config(Config.ConfigType.JSON).getBoolean("debug_mode")){

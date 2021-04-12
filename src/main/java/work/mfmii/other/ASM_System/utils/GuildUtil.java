@@ -1,5 +1,7 @@
 package work.mfmii.other.ASM_System.utils;
 
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -57,4 +59,99 @@ public class GuildUtil {
             return LanguageUtil.Language.OTHER;
         }
     }
+
+    public double getReputation(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `reputation` FROM `dc_guild` WHERE `id`=?");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            double result;
+            if(rs.next()) result = rs.getDouble("reputation");
+            else {
+                result = -127;
+            }
+            return result;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return -125;
+        }
+    }
+
+    public boolean isBanned(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `banReason` FROM `dc_guild` WHERE `id`=?;");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()) return rs.getString("banReason") != null;
+            else return false;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
+
+    public String getBanReason(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `banReason` FROM `dc_guild` WHERE `id`=?;");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()) return rs.getString("banReason");
+            else return "#ERROR GUILD_NOT_FOUND";
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "#ERROR "+throwables.getMessage();
+        }
+    }
+    public String getModeratorChannelId(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `moderatorChannel` FROM `dc_guild` WHERE `id`=?");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getString("moderatorChannel");
+            else return "#ERROR GUILD_NOT_FOUND";
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "#ERROR "+throwables.getMessage();
+        }
+    }
+    public String getWelcomeChannelId(){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `moderatorChannel` FROM `dc_guild` WHERE `id`=?");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getString("moderatorChannel");
+            else return "#ERROR GUILD_NOT_FOUND";
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "#ERROR "+throwables.getMessage();
+        }
+    }
+    public String getWelcomeMessage(GuildMemberJoinEvent event){
+        try {
+            Connection con = new MySQLUtil().getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT `welcomeMessage` FROM `dc_guild` WHERE `id`=?");
+            pstmt.setString(1, guildId);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()) {
+
+                String res = rs.getString("welcomeMessage");
+                res = res.replaceAll("%userAsTag%", event.getUser().getAsTag())
+                        .replaceAll("%guildName%", event.getGuild().getName())
+                        .replaceAll("%userId%", event.getUser().getId())
+                        .replaceAll("%memberCount%", String.valueOf(event.getGuild().getMembers().size()));
+                return res;
+            }
+            else return "#ERROR GUILD_NOT_FOUND";
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return "#ERROR "+throwables.getMessage();
+        }
+    }
+
+
 }

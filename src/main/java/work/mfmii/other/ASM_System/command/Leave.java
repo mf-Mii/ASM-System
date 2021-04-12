@@ -66,8 +66,10 @@ public class Leave extends CommandManager {
         if(debug){
             System.out.println("GuildLang: "+new GuildUtil(targetId).getLanguage()+"("+new GuildUtil(targetId).getLanguage().getKey()+")");
         }
-        event.getChannel().sendMessage(String.format(new LanguageUtil().getMessage(new GuildUtil(targetId).getLanguage(), "command.leave.success.channel"), String.join(" ", reason))).queue();
-
+        try {
+            event.getChannel().sendMessage(String.format(new LanguageUtil().getMessage(new GuildUtil(targetId).getLanguage(), "command.leave.success.channel"), String.join(" ", reason))).queue();
+        } catch (Exception ignored) {
+        }
         g.leave().queue();
         return false;
     }
