@@ -3,6 +3,7 @@ package work.mfmii.other.ASM_System.utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
@@ -158,4 +159,20 @@ public class FileUtil {
         return null;
     }
 
+
+    public boolean writeFile(@Nonnull String file, @Nonnull String content, boolean append){
+        System.setProperty("file.encoding","UTF-8");
+        try {
+            FileWriter fw = new FileWriter(getFile(file),append);
+            PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+
+            pw.println(content);
+
+            pw.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -8,8 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
+import work.mfmii.other.ASM_System.utils.VerifyUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Test extends CommandManager {
     public Test(String name){
@@ -18,12 +22,13 @@ public class Test extends CommandManager {
 
     @Override
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
-        if (true) {
-            event.getChannel().sendMessage("This command has disabled because sending SMS needs some costs.").queue();
-            return true;
-        }
-        if(args.length != 0){
-            if (args[0] != null && args[0].equalsIgnoreCase("sms_api")){
+
+        if(args.length != 0 && args[0] != null){
+            if (args[0].equalsIgnoreCase("sms_api")){
+                if (true) {
+                    event.getChannel().sendMessage("This command has disabled because sending SMS needs some costs.").queue();
+                    return true;
+                }
                 OkHttpClient client = new OkHttpClient();
                 String host = new Config(Config.ConfigType.JSON).getString("verifies.sms.host");
                 String phone = new Config(Config.ConfigType.JSON).getString("verifies.sms.test_target");
@@ -57,6 +62,21 @@ public class Test extends CommandManager {
                     event.getChannel().sendMessage(request.toString()+"\n"+req_str+"\n"+response.toString()).queue();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }else if(args[0].equalsIgnoreCase("verify")){
+                try {
+                    event.getChannel().sendMessage(new VerifyUtil().createLink(VerifyUtil.VerifyType.DISCORD, event.getAuthor().getId(), event.getGuild().getId(), null)).queue();
+                } catch (Exception exception) {
+                    String stack = "";
+                    for (StackTraceElement stackTraceElement : exception.getStackTrace()) {
+                        if (stack.length() >= 1500) {
+                            stack += "[more]...";
+                            break;
+                        }
+                        if (!stack.isEmpty()) stack += "\n        ";
+                        stack += stackTraceElement.getClassName()+".class ("+stackTraceElement.getMethodName()+"() :"+stackTraceElement.getLineNumber()+")";
+                    }
+                    event.getChannel().sendMessage("```"+exception.getClass().getName()+": "+exception.getMessage()+"\n"+stack+"```").queue();
                 }
             }
         }

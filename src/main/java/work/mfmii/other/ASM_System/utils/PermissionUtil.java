@@ -95,7 +95,7 @@ public class PermissionUtil {
         }
 
         try {
-            boolean addGid = true;
+            boolean addGid = false;
             boolean addUid = false;
             String _gid = (guildId == null || guildId.length() != 18) ? "global" : guildId;
             String _cid = (channelId == null || channelId.length() != 18) ? "global" : channelId;
@@ -104,7 +104,7 @@ public class PermissionUtil {
                 if(isDebug) System.out.println("JDA couldn't find user that id is "+userId);
                 return false;
             }
-            if (!_cid.equals("global")) addGid = false;
+            if (!_cid.equals("global")) addGid = true;
             if (!_uid.equals("global")) addUid = true;
             Connection con = new MySQLUtil().getConnection();
             PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `dc_user` WHERE `id`=?");
@@ -131,7 +131,7 @@ public class PermissionUtil {
 
             StringBuilder sql = new StringBuilder()
                     .append("SELECT * FROM `dc_perm_each` WHERE ");
-            if(addGid) sql.append("(`guild_id`=? OR `guild_ud`='global')AND ");
+            if(addGid) sql.append("(`guild_id`=? OR `guild_id`='global')AND ");
             if(addUid) sql.append("(`user_id`='global' OR `user_id`=?) AND ");
             else sql.append("`user_id`='global' AND ");
             sql.append("(`channel_id`=? OR `channel_id`='global') AND (`permission`=? OR `permission` LIKE 'group.%' OR `permission` LIKE '%.*')");
@@ -153,6 +153,7 @@ public class PermissionUtil {
 
              */
             rs = pstmt.executeQuery();
+            if(isDebug) System.out.println(sql.toString());
 
             AtomicBoolean result = new AtomicBoolean(false);
             int last_lev = 0;

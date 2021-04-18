@@ -19,9 +19,9 @@ public class Reboot extends CommandManager {
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         if (args.length <= 1){
-            if (new File(args.length == 0 ? new Config(Config.ConfigType.JSON).getString("start_file") : args[0]).isFile()){
+            if (new File(args.length == 0 ? new Config(Config.ConfigType.JSON).getString("start_script") : args[0]).isFile()){
                 event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.reboot.success")).queue();
-                restart(args.length == 0 ? new Config(Config.ConfigType.JSON).getString("start_file") : args[0]);
+                restart(args.length == 0 ? new Config(Config.ConfigType.JSON).getString("start_script") : args[0]);
             }else {
                 event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.reboot.error.file-notFound")).queue();
                 restart(null);
