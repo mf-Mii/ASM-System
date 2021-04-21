@@ -18,10 +18,10 @@ public abstract class EventManager {
     /**
      * Executes the command, returning its success
      *
-     * @param event Event from JDA
+     * @param genericEvent Event from JDA
      * @return true if the event executing was successful, otherwise false
      */
-    public abstract boolean execute(@NotNull GenericEvent event);
+    public abstract boolean execute(@NotNull GenericEvent genericEvent);
 
     public String getEventsRaw(){
         return new FileUtil().readFile(new FileUtil().getFile("events.json"), "utf8");

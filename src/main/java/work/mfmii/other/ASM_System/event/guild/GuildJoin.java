@@ -27,6 +27,7 @@ public class GuildJoin extends EventManager {
                 System.out.println("GuildLang: "+guild.getLocale().getLanguage()+", iso3: "+guild.getLocale().getISO3Language());
             }
             new GuildUtil(guild.getId()).register(guild.getLocale().getLanguage());
+            return true;
         }
         return false;
     }

@@ -1,7 +1,9 @@
 package work.mfmii.other.ASM_System;
 
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import work.mfmii.other.ASM_System.command.*;
+import work.mfmii.other.ASM_System.event.guild.GuildBan;
 import work.mfmii.other.ASM_System.event.guild.GuildJoin;
 import work.mfmii.other.ASM_System.utils.CommandMap;
 import work.mfmii.other.ASM_System.utils.EventMap;
@@ -19,5 +21,6 @@ public class StartUp {
 
         EventMap emap = new EventMap();
         emap.register(new GuildJoin(GuildJoinEvent.class));
+        emap.register(new GuildBan(GuildBanEvent.class));
     }
 }
