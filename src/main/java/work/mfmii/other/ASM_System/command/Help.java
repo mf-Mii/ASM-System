@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.CommandMap;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Help extends CommandManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public Help(String name){
         super(name);
     }

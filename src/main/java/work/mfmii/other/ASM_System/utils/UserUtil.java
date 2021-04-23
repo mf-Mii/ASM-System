@@ -5,6 +5,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String userId;
     public UserUtil(@NotNull String userId){
         this.userId = userId;

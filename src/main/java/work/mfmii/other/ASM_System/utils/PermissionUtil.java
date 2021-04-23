@@ -1,6 +1,8 @@
 package work.mfmii.other.ASM_System.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
 import work.mfmii.other.ASM_System.Config;
 
@@ -9,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PermissionUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private boolean isDebug = false;
     public PermissionUtil(){
         isDebug = new Config(Config.ConfigType.JSON).isDebugMode();

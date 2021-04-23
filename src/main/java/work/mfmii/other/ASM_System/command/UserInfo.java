@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserInfo extends CommandManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public UserInfo(String name){
         super(name);
     }

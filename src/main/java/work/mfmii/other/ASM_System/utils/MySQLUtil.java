@@ -1,5 +1,7 @@
 package work.mfmii.other.ASM_System.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import java.sql.Connection;
@@ -7,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQLUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public MySQLUtil(){}
 
     public String getUrl(){

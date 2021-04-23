@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.GuildUtil;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Leave extends CommandManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private boolean debug = false;
     public Leave(String name){
         super(name);

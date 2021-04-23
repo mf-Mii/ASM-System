@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.EventManager;
 
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuildBan extends EventManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public GuildBan(@Nonnull Class event){
         super(event);
     }

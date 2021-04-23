@@ -2,6 +2,8 @@ package work.mfmii.other.ASM_System.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import javax.annotation.Nonnull;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 public class VerifyUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public VerifyUtil(){
 
     }

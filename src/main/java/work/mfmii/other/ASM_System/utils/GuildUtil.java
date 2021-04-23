@@ -1,6 +1,8 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GuildUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private String guildId;
     public GuildUtil(String id){
         this.guildId = id;

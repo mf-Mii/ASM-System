@@ -5,12 +5,15 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CommandManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private String name;
     private String nextLabel;
     private String label;

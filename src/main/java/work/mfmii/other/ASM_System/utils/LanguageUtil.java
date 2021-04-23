@@ -2,6 +2,8 @@ package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import java.sql.*;
@@ -9,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LanguageUtil {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public LanguageUtil(){
 

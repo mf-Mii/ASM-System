@@ -6,8 +6,11 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class EventManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private Class eventType;
     private EventMap eventMap;
 

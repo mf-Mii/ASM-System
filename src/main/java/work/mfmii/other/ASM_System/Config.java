@@ -2,11 +2,14 @@ package work.mfmii.other.ASM_System;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.utils.FileUtil;
 
 import java.util.*;
 
 public class Config {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     private String type;
     public Config(ConfigType configType){
         type = configType.getKey();

@@ -29,6 +29,8 @@ import okhttp3.*;
 import okio.Buffer;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
@@ -45,6 +47,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Test extends CommandManager {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public Test(String name) {
         super(name);
     }
