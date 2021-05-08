@@ -86,7 +86,9 @@ public class CommandMap {
                     else
                         event.getChannel().sendMessage(target.getPermissionMessage(new LanguageUtil().getUserLanguage(sender))).queue();
                 }else {
-                    target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
+                    if (!isAdminPrefix)
+                        target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length), event);
+                    else return false;
                 }
             } catch (Throwable ex) {
                 System.out.println("Unhandled exception executing '" + commandLine + "' in " + target + ex.getMessage());

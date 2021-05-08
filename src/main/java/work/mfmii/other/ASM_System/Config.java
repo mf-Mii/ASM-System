@@ -75,6 +75,18 @@ public class Config {
         return -1;
     }
 
+    public double getDouble(String key){
+        List<String> keys = Arrays.asList(key.split("\\.").clone());
+        JSONObject temp = new JSONObject(getRaw());
+        for (int i = 0; i <= keys.size() - 1; i++) {
+            if (i == keys.size() - 1) {
+                return temp.getDouble(keys.get(i));
+            }
+            temp = temp.getJSONObject(keys.get(i));
+        }
+        return -1;
+    }
+
     public JSONObject getJSONObject(String key){
         List<String> keys = Arrays.asList(key.split("\\.").clone());
         JSONObject temp = new JSONObject(getRaw());
@@ -109,6 +121,10 @@ public class Config {
         }else{
             return null;
         }
+    }
+
+    public String getVersion(){
+        return new Config(ConfigType.JSON).getString("version");
     }
 
     public boolean isDebugMode(){

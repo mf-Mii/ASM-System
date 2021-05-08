@@ -40,6 +40,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -136,6 +138,20 @@ public class Test extends CommandManager {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } else if (args[0].equalsIgnoreCase("timecheck")) {
+                List<String> sl = new ArrayList<>();
+                OffsetDateTime now = OffsetDateTime.now();
+                sl.add("Now: " + now);
+                sl.add("-3s: " + now.minusSeconds(3));
+                sl.add("+3s: " + now.plusSeconds(3));
+                sl.add("-60s: " + now.minusSeconds(60));
+                sl.add("+60s: " + now.plusSeconds(60));
+                event.getChannel().sendMessage(String.join("\n", sl)).queue();
+                sl.forEach(s -> {
+                    logger.debug(s);
+                });
+            } else if (args[0].equalsIgnoreCase("createserver")){
+                event.getJDA().createGuild("HogeHoge").queue();
             } else if (args[0].equalsIgnoreCase("say")) {
 
                 if (args.length < 2) {

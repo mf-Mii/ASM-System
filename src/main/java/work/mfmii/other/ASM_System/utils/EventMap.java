@@ -50,7 +50,7 @@ public class EventMap {
             try {
                 target.execute(event);
             } catch (Throwable ex) {
-                System.out.println("Unhandled exception executing '" + target.getEventType().getName() + "' in " + target + ex.getMessage());
+                logger.warn("Unhandled exception executing '" + target.getEventType().getName() + "' in " + target + ex.getMessage());
                 ex.printStackTrace();
             }
         }
