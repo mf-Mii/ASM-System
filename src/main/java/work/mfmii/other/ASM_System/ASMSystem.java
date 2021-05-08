@@ -26,6 +26,7 @@ public class ASMSystem {
         logger.info("Licence: PRIVATE_ONLY");
         logger.info("Website: "+new Config(Config.ConfigType.JSON).getString("website")+"/bot/");
         logger.info("Help: "+new Config(Config.ConfigType.JSON).getString("website")+"/admin/help/bot/");
+        logger.info("=====================");
         jda = JDABuilder.createDefault(new Config(Config.ConfigType.JSON).getString("token"))
                 .addEventListeners(new Listener())
                 .setChunkingFilter(ChunkingFilter.ALL)
