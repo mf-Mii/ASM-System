@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.utils.FileUtil;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Config {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -119,7 +120,10 @@ public class Config {
             String conf_raw = new FileUtil().readFile(new FileUtil().getFile("default.json"), "utf8");
             return conf_raw;
         }else{
-            return null;
+            if (new FileUtil().getFile(type + ".json").exists()){
+                return new FileUtil().readFile(new FileUtil().getFile(type + ".json"), "utf8");
+            }else
+                return null;
         }
     }
 
@@ -134,6 +138,8 @@ public class Config {
     public enum ConfigType{
         JSON("json"),
         DEFAULT("default"),
+        COMMANDS("commands"),
+        EVENTS("events"),
         UNKNOWN("");
 
         private final String key;

@@ -33,6 +33,7 @@ public class ASMSystem {
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .enableIntents(GatewayIntent.GUILD_PRESENCES)
                 .setStatus(OnlineStatus.ONLINE)
+                .setRawEventsEnabled(true)
                 .build();
         jda.awaitReady();
         logger.info("Logged in as "+jda.getSelfUser().getAsTag()+"("+ jda.getSelfUser().getId()+")");

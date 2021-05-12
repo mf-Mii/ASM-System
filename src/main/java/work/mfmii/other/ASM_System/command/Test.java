@@ -1,26 +1,16 @@
 package work.mfmii.other.ASM_System.command;
 
-import com.sedmelluq.discord.lavaplayer.container.MediaContainer;
-import com.sedmelluq.discord.lavaplayer.container.MediaContainerProbe;
-import com.sedmelluq.discord.lavaplayer.container.MediaContainerRegistry;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.event.AudioEvent;
-import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.player.event.AudioEventListener;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.playback.AudioTrackExecutor;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
-import net.dv8tion.jda.api.audio.CombinedAudio;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,19 +24,16 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
+import work.mfmii.other.ASM_System.utils.SlashCommandUtil;
 import work.mfmii.other.ASM_System.utils.VerifyUtil;
+import work.mfmii.other.ASM_System.utils.exceptions.SlashCommandException;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Test extends CommandManager {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -152,7 +139,7 @@ public class Test extends CommandManager {
                 });
             } else if (args[0].equalsIgnoreCase("createserver")){
                 event.getJDA().createGuild("HogeHoge").queue();
-            } else if (args[0].equalsIgnoreCase("say")) {
+            } else if (args[0].equalsIgnoreCase("speak")) {
 
                 if (args.length < 2) {
                     return true;
@@ -237,6 +224,14 @@ public class Test extends CommandManager {
                 });
 
                  */
+            }else if (args[0].equalsIgnoreCase("slash")){
+                try {
+                    SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder("test", "this is test slash command");
+                    builder.addOption(new SlashCommandUtil.Option("HogeHoge", "Example Description", false, SlashCommandUtil.OptionType.USER));
+                    new SlashCommandUtil().submitToDiscord(builder.build(), "821326948365107200");
+                } catch (SlashCommandException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return true;

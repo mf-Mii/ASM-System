@@ -22,6 +22,14 @@ public class MessageReceived extends EventManager {
     public boolean execute(@NotNull GenericEvent genericEvent) {
         if (genericEvent instanceof MessageReceivedEvent) {
             MessageReceivedEvent event = (MessageReceivedEvent) genericEvent;
+            logger.debug("Event: "+event);
+            logger.debug("FullMessageRaw: "+event.getMessage().getContentRaw());
+            logger.debug("FullMessageDisplay: "+event.getMessage().getContentDisplay());
+            logger.info(String.format("Message U:%s(%s) CH:%s Content:%s",
+                    event.getAuthor().getAsTag(),
+                    event.getAuthor().getId(),
+                    event.getChannel().getId(),
+                    event.getMessage().getContentRaw()));
 
             if (event.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("prefix"))) {
                 boolean exec_res = new CommandMap().dispatch(event.getAuthor(), event.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), event, false);
