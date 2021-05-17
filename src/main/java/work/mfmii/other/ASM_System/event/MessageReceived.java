@@ -22,9 +22,6 @@ public class MessageReceived extends EventManager {
     public boolean execute(@NotNull GenericEvent genericEvent) {
         if (genericEvent instanceof MessageReceivedEvent) {
             MessageReceivedEvent event = (MessageReceivedEvent) genericEvent;
-            logger.debug("Event: "+event);
-            logger.debug("FullMessageRaw: "+event.getMessage().getContentRaw());
-            logger.debug("FullMessageDisplay: "+event.getMessage().getContentDisplay());
             logger.info(String.format("Message U:%s(%s) CH:%s Content:%s",
                     event.getAuthor().getAsTag(),
                     event.getAuthor().getId(),

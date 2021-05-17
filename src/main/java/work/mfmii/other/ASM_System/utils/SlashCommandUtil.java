@@ -6,6 +6,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,42 +16,45 @@ import work.mfmii.other.ASM_System.utils.exceptions.SlashCommandException;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SlashCommandUtil {
     Logger logger = LoggerFactory.getLogger(this.getClass());
-    public static List<JSONObject> commandList = new ArrayList<>();
+    /**
+     * commandListのJSONObject
+     * {
+     *     "id": "000000000000000000",
+     *     "guild_id": null(or GuildID(18)),
+     *     "data": {
+     *         "name": "example",
+     *         "description": "hogehoge",
+     *         "default_permission": true
+     *     }
+     * }
+     */
+    public static Map<Long, JSONObject> commandList = new HashMap<>();
     public SlashCommandUtil(){}
 
-    public List<JSONObject> getCommands(){
+    public Map<Long, JSONObject> getCommands(){
         return commandList;
     }
 
     public static class Command{
         public JSONObject json = null;
+        public long id = -1;
 
-        /**
-         * @param name get SlashCommandUtil.Command with the name
-         * @throws SlashCommandException return command not found if command not found
-         */
-        public Command(@Nonnull final String name) throws SlashCommandException {
-            commandList.forEach(jsonObject -> {
-                if (jsonObject.getString("name").equals(name))
-                    json = jsonObject;
-            });
-            if (json == null)
-                throw new SlashCommandException("Command not found");
-        }
 
         /**
          *
-         * @param index get SlashCommandUtil.Command from commandList
+         * @param id get SlashCommandUtil.Command from commandList with ID
          * @throws SlashCommandException return command not found if command not found
          */
-        public Command(@Nonnull final int index) throws SlashCommandException {
-            if (commandList.get(index) != null)
-                json = commandList.get(index);
+        public Command(@Nonnull final long id) throws SlashCommandException {
+            if (commandList.get(id) != null) {
+                json = commandList.get(id);
+                this.id = id;
+            }
             else throw new SlashCommandException("Command not found");
         }
 
@@ -61,9 +65,26 @@ public class SlashCommandUtil {
             return this.json.getString("description");
         }
 
+        public String getGuildId(){
+            return this.json.getString("guild_id");
+        }
         public JSONObject getData(){
+            return this.json.getJSONObject("data");
+        }
+        
+        public JSONObject getRaw(){
             return this.json;
         }
+        
+        public String getId(){
+            return String.valueOf(this.id);
+        }
+        
+        public long getIdAsLong(){
+            return this.id;
+        }
+        
+        
 
 
     }
@@ -73,6 +94,12 @@ public class SlashCommandUtil {
         public Builder(@Nonnull String name, @Nonnull String description){
             build_json.put("name", name);
             build_json.put("description", description);
+        }
+
+        public Builder(@Nonnull String name, @Nonnull String description, boolean default_use){
+            build_json.put("name", name);
+            build_json.put("description", description);
+            build_json.put("default_permission", default_use);
         }
 
         public Builder getName(@Nonnull String name){
@@ -98,13 +125,8 @@ public class SlashCommandUtil {
             }
             return this;
         }
-        public Command build() throws SlashCommandException {
-            commandList.add(build_json);
-            for (int i = 0; i < commandList.size(); i++) {
-                if (commandList.get(i).equals(build_json))
-                    return new SlashCommandUtil.Command(i);
-            }
-            throw new SlashCommandException("failed add build_json to commandList");
+        public JSONObject build() {
+            return build_json;
         }
     }
 
@@ -185,8 +207,8 @@ public class SlashCommandUtil {
         }
     }
 
-    public boolean submitToDiscord(@Nonnull Command command){
-        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), command.getData().toString());
+    public JSONObject submitToDiscord(@Nonnull JSONObject cmd_json){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json.toString());
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/v8/applications/%s/commands", new Config(Config.ConfigType.JSON).getString("applicationId")))
                 .addHeader("Authorization", ASMSystem.jda.getToken())
@@ -195,16 +217,17 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.info("SlashCommandRequestResponse: "+response.body().string());
-            return true;
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            
+            return new JSONObject(response.body().string());
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
-    public boolean submitToDiscord(@Nonnull Command command, @Nonnull Guild guild){
-        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), command.getData().toString());
+    public JSONObject submitToDiscord(@Nonnull JSONObject cmd_json, @Nonnull Guild guild){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json.toString());
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
                         new Config(Config.ConfigType.JSON).getString("applicationId"), guild.getId()))
@@ -214,15 +237,127 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.info("SlashCommandRequestResponse: "+response.body().string());
-            return true;
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            return new JSONObject(response.body().string());
         } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject submitToDiscord(@Nonnull JSONObject cmd_json, @Nonnull String guild_id){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json.toString());
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild_id))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .post(post)
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            return new JSONObject(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject submitToDiscord(@Nonnull String cmd_json){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json);
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/commands", new Config(Config.ConfigType.JSON).getString("applicationId")))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .post(post)
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            return new JSONObject(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject submitToDiscord(@Nonnull String cmd_json, @Nonnull Guild guild){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json);
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild.getId()))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .post(post)
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            return new JSONObject(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject submitToDiscord(@Nonnull String  cmd_json, @Nonnull String guild_id){
+        RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), cmd_json);
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild_id))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .post(post)
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            return new JSONObject(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean deleteFromDiscordGlobal(@Nonnull Command command){
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/commands/%s", new Config(Config.ConfigType.JSON).getString("applicationId"), command.getId()))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .delete()
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            if (response.code()==204)
+                return true;
+            else throw new SlashCommandException("Response not 204.\n"+response.code()+"\n"+response.body().string());
+        } catch (IOException | SlashCommandException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean submitToDiscord(@Nonnull Command command, @Nonnull String guild_id){
+    public boolean deleteFromDiscordGuild(@Nonnull Command command, @Nonnull Guild guild){
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild.getId()))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .delete()
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            if (response.code()==204)
+            return true;
+            else throw new SlashCommandException("Response not 204.\n"+response.code()+"\n"+response.body().string());
+        } catch (IOException | SlashCommandException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteFromDiscordGuild(@Nonnull Command command, @Nonnull String guild_id){
         RequestBody post = RequestBody.create(MediaType.parse("application/json;charset=utf8"), command.getData().toString());
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
@@ -233,16 +368,83 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.info("SlashCommandRequestResponse: "+response.body().string());
-            return true;
-        } catch (IOException e) {
+            if (response.code()==204)
+                return true;
+            else throw new SlashCommandException("Response not 204.\n"+response.code()+"\n"+response.body().string());
+        } catch (IOException | SlashCommandException e) {
             e.printStackTrace();
             return false;
         }
     }
 
+    public JSONArray getAllSubmitted(){
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId")))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            try {
+                return new JSONArray(response.body().string());
+            } catch (JSONException ex){
+                logger.warn(ex.getMessage());
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONArray getAllSubmitted(Guild guild){
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild.getId()))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            try {
+                return new JSONArray(response.body().string());
+            } catch (JSONException ex){
+                logger.warn(ex.getMessage());
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONArray getAllSubmitted(String guild_id){
+        Request request = new Request.Builder()
+                .url(String.format("https://discord.com/api/v8/applications/%s/guilds/%s/commands",
+                        new Config(Config.ConfigType.JSON).getString("applicationId"), guild_id))
+                .addHeader("Authorization", ASMSystem.jda.getToken())
+                .build();
+        Response response = null;
+        try {
+            response = ASMSystem.jda.getHttpClient().newCall(request).execute();
+            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            try {
+                return new JSONArray(response.body().string());
+            } catch (JSONException ex){
+                logger.warn(ex.getMessage());
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Nonnull
-    public static enum OptionType{
+    public enum OptionType{
         SUB_COMMAND(1),
         SUB_COMMAND_GROUP(2),
         STRING(3),

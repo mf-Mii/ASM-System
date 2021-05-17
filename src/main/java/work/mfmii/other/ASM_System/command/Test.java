@@ -225,12 +225,55 @@ public class Test extends CommandManager {
 
                  */
             }else if (args[0].equalsIgnoreCase("slash")){
-                try {
-                    SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder("test", "this is test slash command");
-                    builder.addOption(new SlashCommandUtil.Option("HogeHoge", "Example Description", false, SlashCommandUtil.OptionType.USER));
-                    new SlashCommandUtil().submitToDiscord(builder.build(), "821326948365107200");
-                } catch (SlashCommandException e) {
-                    e.printStackTrace();
+                if (args.length >= 3) {
+                    if (args[1].equalsIgnoreCase("add")) {
+                        if (args.length >= 4) {
+                            String name = null;
+                            String description = null;
+                            List<SlashCommandUtil.Option> opts = new ArrayList<>();
+
+                            if (args[2].equalsIgnoreCase("-template") || args[2].equalsIgnoreCase("-t")){
+                                if (args[3].equalsIgnoreCase("1")){
+                                    name = "EXAMPLE";
+                                    description = "This command is example made with template:1";
+                                }
+                                if (args[3].equalsIgnoreCase("2")){
+                                    name = "ARGS_EXAMPLE";
+                                    description = "This command is example for args made with template:2";
+                                    try {
+                                        opts.add(new SlashCommandUtil.Option("Args1", "Example args 1", true, SlashCommandUtil.OptionType.STRING).addChoice("Choice1", "Choice1").addChoice("Choice2", "Choice2"));
+                                    } catch (SlashCommandException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                else {
+                                    event.getChannel().sendMessage("please select template").queue();
+                                    return true;
+                                }
+                            }else {
+                                name = args[2];
+                                description = args[3];
+                                if (args.length >= 5){
+                                    for (String s : args[4].split(",")) {
+                                        opts.add(new SlashCommandUtil.Option(s.split(":")[0], s.split(":")[1], false, SlashCommandUtil.OptionType.STRING));
+                                    }
+                                }
+                            }
+                            SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder(name, description);
+                            opts.forEach(option -> {
+                                try {
+                                    builder.addOption(option);
+                                } catch (SlashCommandException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                            logger.debug(builder.build().toString());
+                            new SlashCommandUtil().submitToDiscord(builder.build(), "821326948365107200");
+
+                        }
+                    }
+                }else {
+                    event.getChannel().sendMessage("Args length error").queue();
                 }
             }
         }
