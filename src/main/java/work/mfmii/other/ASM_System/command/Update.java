@@ -35,6 +35,7 @@ public class Update extends CommandManager {
             if (file==null){
                 event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.update.error.update-file")).queue();
             }else {
+                event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.update.success")).queue();
                 update(new Config(Config.ConfigType.JSON).getString("update_script"), file.getName());
             }
         }else {

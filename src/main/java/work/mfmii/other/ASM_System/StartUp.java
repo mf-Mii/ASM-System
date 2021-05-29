@@ -29,6 +29,7 @@ public class StartUp {
         CommandMap cmap = new CommandMap();
         cmap.register(new Help("help"));
         cmap.register(new UserInfo("userinfo"));
+        cmap.register(new Clear("clear"));
         cmap.register(new Reboot("reboot"));
         cmap.register(new Shutdown("shutdown"));
         cmap.register(new Leave("leave"));

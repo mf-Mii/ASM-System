@@ -238,7 +238,7 @@ public class Test extends CommandManager {
                                     description = "This command is example made with template:1";
                                 }
                                 if (args[3].equalsIgnoreCase("2")){
-                                    name = "ARGS_EXAMPLE";
+                                    name = "ARGS-EXAMPLE";
                                     description = "This command is example for args made with template:2";
                                     try {
                                         opts.add(new SlashCommandUtil.Option("Args1", "Example args 1", true, SlashCommandUtil.OptionType.STRING).addChoice("Choice1", "Choice1").addChoice("Choice2", "Choice2"));
