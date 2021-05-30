@@ -109,7 +109,13 @@ public class Clear extends CommandManager {
                                             });
                                         }
                                     }
+                                }else {
+                                    //UnknownMsg
+                                    event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.clear.error.unknown-message")).queue();
                                 }
+                            }else {
+                                //UnknownCh
+                                event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.clear.error.unknown-channel")).queue();
                             }
                         }else {
                             event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.clear.error.another-guild")).queue();

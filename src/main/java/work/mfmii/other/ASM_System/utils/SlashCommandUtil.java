@@ -217,9 +217,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
             
-            return new JSONObject(response.body().string());
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

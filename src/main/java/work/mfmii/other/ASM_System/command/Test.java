@@ -226,7 +226,7 @@ public class Test extends CommandManager {
                  */
             }else if (args[0].equalsIgnoreCase("slash")){
                 if (args.length >= 3) {
-                    if (args[1].equalsIgnoreCase("add")) {
+                    if (args[1].equalsIgnoreCase("add")) {//
                         if (args.length >= 4) {
                             String name = null;
                             String description = null;
