@@ -78,7 +78,7 @@ public class CommandMap {
         if(target == null){
             return false;
         }
-        if (new PermissionUtil().hasPermission(event.getGuild().getId(), event.getChannel().getId(), sender.getId(), target.getPermission())) {
+        if (new PermissionUtil().hasPermission(event.isFromGuild()?event.getGuild().getId():null, event.getChannel().getId(), sender.getId(), target.getPermission())) {
             try {
                 if (target.isAdminCommand()) {
                     if(isAdminPrefix)
