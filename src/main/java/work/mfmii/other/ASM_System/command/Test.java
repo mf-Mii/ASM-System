@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 import okhttp3.*;
 import okio.Buffer;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -24,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
-import work.mfmii.other.ASM_System.utils.SlashCommandUtil;
 import work.mfmii.other.ASM_System.utils.VerifyUtil;
-import work.mfmii.other.ASM_System.utils.exceptions.SlashCommandException;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandException;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -271,6 +272,32 @@ public class Test extends CommandManager {
                             new SlashCommandUtil().submitToDiscord(builder.build(), "821326948365107200");
 
                         }
+                    }else if (args[1].equalsIgnoreCase("1")){
+                        String name = RandomStringUtils.randomAlphabetic(10);
+                        String desc = RandomStringUtils.randomAlphabetic(10);
+                        //String name = "test-a";
+                        //String desc = "test-a";
+                        SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder(name, desc);
+                        for (int i = 0; i < 5; i++) {
+                            String optname = RandomStringUtils.randomAlphabetic(10);
+                            String optdesc = RandomStringUtils.randomAlphabetic(10);
+                            SlashCommandUtil.Option option = new SlashCommandUtil.Option(optname, optdesc, SlashCommandUtil.OptionType.SUB_COMMAND_GROUP);
+                            try {
+                                /*
+                                option.addChoice("ChoiceA", "ChoiceA")
+                                        .addChoice("ChoiceB", "ChoiceB")
+                                        .addChoice("ChoiceC", "ChoiceC");
+                                */
+                                option.addOption(new SlashCommandUtil.Option("OptA", "AAA", SlashCommandUtil.OptionType.SUB_COMMAND))
+                                        .addOption(new SlashCommandUtil.Option("OptB", "BBB", SlashCommandUtil.OptionType.SUB_COMMAND))
+                                        .addOption(new SlashCommandUtil.Option("OptC", "CCC", SlashCommandUtil.OptionType.SUB_COMMAND));
+                                builder.addOption(option);
+                            } catch (SlashCommandException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        logger.debug("sendBuilt: "+builder.build().toString());
+                        new SlashCommandUtil().submitToDiscord(builder.build());
                     }
                 }else {
                     event.getChannel().sendMessage("Args length error").queue();

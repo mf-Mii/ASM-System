@@ -47,7 +47,6 @@ public class Clear extends CommandManager {
             logger.debug(String.format("MessageID/Raw: %s/%s", event.getTextChannel().retrieveMessageById(args[0]).complete().getId(), event.getTextChannel().retrieveMessageById(args[0]).complete().getContentRaw()));
             AtomicReference<Message> last_msg = new AtomicReference<>(event.getTextChannel().retrieveMessageById(args[0]).complete());
             if (last_msg.get() != null) {
-                event.getMessage().delete().queue();
                 logger.debug(String.format("'%s' is message id", args[0]));
                 //指定ID以降すべて取得
                 AtomicBoolean hasNext = new AtomicBoolean(true);
@@ -72,8 +71,7 @@ public class Clear extends CommandManager {
                 }
             }
         }else if (args[0].matches("^[0-9]+$")){
-            event.getMessage().delete().queue();
-            List<Message> out = event.getChannel().getHistory().retrievePast(Integer.parseInt(args[0])).complete();
+            List<Message> out = event.getChannel().getHistory().retrievePast(Integer.parseInt(args[0])+1).complete();
             messages.add(out);
             all_size.addAndGet(out.size());
         }else if(args[0].matches("http(s)?://discord.com/channels/[0-9]{18}/[0-9]{18}/[0-9]{18}")){
@@ -90,7 +88,6 @@ public class Clear extends CommandManager {
                                 textChannel = event.getGuild().getTextChannelById(target_urls[i+3]);
                                 AtomicReference<Message> last_msg = new AtomicReference<>(textChannel.retrieveMessageById(target_urls[i+4]).complete());
                                 if (last_msg.get() != null) {
-                                    event.getMessage().delete().queue();
                                     //指定ID以降すべて取得
                                     AtomicBoolean hasNext = new AtomicBoolean(true);
                                     while (true) {
@@ -135,7 +132,7 @@ public class Clear extends CommandManager {
         messages.forEach(messages1 -> {
             finalTextChannel.deleteMessages(messages1).queue();
         });
-        event.getChannel().sendMessage(String.format(new LanguageUtil().getMessage(lang, "command.clear.success"), all_size.get())).queue();
+        event.getChannel().sendMessage(String.format(new LanguageUtil().getMessage(lang, "command.clear.success"), all_size.get()-1)).queue();
 
         return true;
     }

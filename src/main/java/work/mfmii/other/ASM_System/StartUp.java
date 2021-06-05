@@ -8,10 +8,12 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.command.Shutdown;
 import work.mfmii.other.ASM_System.command.*;
 import work.mfmii.other.ASM_System.event.MessageReceived;
+import work.mfmii.other.ASM_System.event.SlashCommandReceived;
 import work.mfmii.other.ASM_System.event.guild.GuildBan;
 import work.mfmii.other.ASM_System.event.guild.GuildJoin;
 import work.mfmii.other.ASM_System.utils.CommandMap;
 import work.mfmii.other.ASM_System.utils.EventMap;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 public class StartUp {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -23,6 +25,7 @@ public class StartUp {
         emap.register(new GuildJoin(GuildJoinEvent.class));
         emap.register(new GuildBan(GuildBanEvent.class));
         emap.register(new MessageReceived(MessageReceivedEvent.class));
+        emap.register(new SlashCommandReceived(SlashCommandEvent.class));
 
         //OLD command setup
         logger.debug("Registering Old Commands");

@@ -17,7 +17,6 @@ import work.mfmii.other.ASM_System.utils.EventMap;
 import work.mfmii.other.ASM_System.utils.slash.SlashCommand;
 import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 
 public class Listener implements EventListener {
@@ -50,7 +49,7 @@ public class Listener implements EventListener {
                         data.getJSONObject("d").getLong("id"),
                         e.getJDA().getTextChannelById(data.getJSONObject("d").getString("channel_id")),
                         false,
-                        e.getJDA().getGuildById(data.getJSONObject("d").getString("guild_id")).getMemberById(data.getJSONObject("d").getJSONObject("member").getJSONObject("user").getString("id")),
+                        data.getJSONObject("d").has("guild_id") ? e.getJDA().getGuildById(data.getJSONObject("d").getString("guild_id")).getMemberById(data.getJSONObject("d").getJSONObject("member").getJSONObject("user").getString("id")) : null,
                         OffsetDateTime.now()
                         );
                 jda.handleEvent(new SlashCommandEvent(
@@ -60,13 +59,7 @@ public class Listener implements EventListener {
                 ));
             }
         }else if (genericEvent instanceof SlashCommandEvent){
-            SlashCommandEvent event = (SlashCommandEvent) genericEvent;
-            try {
-                event.getSlashCommand().replyMessage(SlashCommand.replyType.CHANNEL_MESSAGE_WITH_SOURCE, "イントラクションの受信を確認", null, false, true);
-            } catch (IOException e) {
-                event.getSlashCommand().getChannel().sendMessage("Error!!\n```"+e.getMessage()+"```").queue();
-                e.printStackTrace();
-            }
+            new EventMap().dispatch(SlashCommandEvent.class, genericEvent);
         }
     }
 }

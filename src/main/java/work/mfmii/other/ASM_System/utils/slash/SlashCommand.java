@@ -1,8 +1,6 @@
 package work.mfmii.other.ASM_System.utils.slash;
 
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -10,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +62,52 @@ public class SlashCommand {
         return raw.getString("token");
     }
 
-    public int replyPing() throws IOException {
+    public JSONObject getCommandData() {
+        return raw.getJSONObject("data");
+    }
+
+    public String getCommandId() {
+        return getCommandData().getString("id");
+    }
+
+    public long getCommandIdAsLong() {
+        return Long.parseLong(getCommandId());
+    }
+
+    public String getName(){
+        return getCommandData().getString("name");
+    }
+
+
+
+    public Guild getGuild() {
+        return member.getGuild();
+    }
+
+    public User getAuthor() {
+        if (member != null) {
+            return member.getUser();
+        }else {
+            return ASMSystem.jda.getUserById(raw.getJSONObject("user").getString("id"));
+        }
+    }
+
+    public String getAuthorId() {
+        if (member != null) {
+            return member.getId();
+        }else {
+            return raw.getJSONObject("user").getString("id");
+        }
+    }
+
+    public long getAuthorIdAsLong() {
+        return Long.parseLong(getAuthorId());
+    }
+
+    /*
+    public int replyPing() throws Exception {
         JSONObject send_data = new JSONObject();
-        send_data.put("type", replyType.PING);
+        send_data.put("type", replyType.PING.getKey());
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/interactions/%s/%s/callback", getId(), getToken()))
                 .post(RequestBody.create(send_data.toString(), MediaType.parse("application/json;charset=utf8")))
@@ -78,21 +118,35 @@ public class SlashCommand {
         Response response = client.newCall(request).execute();
         int response_code = response.code();
         logger.debug("Response Code: "+response_code);
-        return response_code;
+        if (response.isSuccessful())
+            return response_code;
+        else {
+            throw new Exception(response.body().string());
+        }
     }
 
-    public int replyMessage(@NotNull replyType type , String message, List<MessageEmbed> embeds, boolean tts, boolean privateMessage) throws IOException {
+     */
 
+    public int replyMessage(@NotNull replyType type, String message, MessageEmbed embed, boolean privateMessage) throws Exception {
+        List<MessageEmbed> embeds = new ArrayList<>();
+        embeds.add(embed);
+        return replyMessage(type, message, embeds, false, privateMessage);
+    }
+
+    public int replyMessage(@NotNull replyType type , String message, List<MessageEmbed> embeds, boolean tts, boolean privateMessage) throws Exception {
+        if ((message == null || message.isEmpty()) && (embeds == null || embeds.isEmpty())){
+            throw new Exception("You have to set content or embeds");
+        }
         JSONObject send_data = new JSONObject();
         send_data.put("type", type.getKey());
         JSONObject send_cnt = new JSONObject();
-        if (message != null) send_cnt.put("content", message);
-        if (embeds != null) {
-            List<String> embeds_str = new ArrayList<>();
+        if (message != null && !message.isEmpty()) send_cnt.put("content", message);
+        if (embeds != null && !embeds.isEmpty()) {
+            List<JSONObject> embeds_raw = new ArrayList<>();
             for (MessageEmbed embed : embeds) {
-                embeds_str.add(embed.toData().toString());
+                embeds_raw.add(new JSONObject(embed.toData().toString()));
             }
-            send_cnt.put("embeds", embeds_str);
+            send_cnt.put("embeds", embeds_raw);
         }
         send_cnt.put("tts", tts);
         if (privateMessage) send_cnt.put("flags", 64);
@@ -105,12 +159,16 @@ public class SlashCommand {
                 .post(RequestBody.create(send_data.toString(), MediaType.parse("application/json;charset=utf8")))
                 .addHeader("Authorization", ASMSystem.jda.getToken())
                 .build();
+        logger.debug(request.toString());
+        logger.debug(send_data.toString());
         OkHttpClient client = ASMSystem.jda.getHttpClient();
 
         Response response = client.newCall(request).execute();
         int response_code = response.code();
         logger.debug("Response Code: "+response_code);
-        return response_code;
+        if (response.isSuccessful())
+            return response_code;
+        else throw new Exception(response.body().string());
 
     }
 
@@ -128,6 +186,10 @@ public class SlashCommand {
         }
 
         public int getKey() {
+            return key;
+        }
+
+        public int toInt() {
             return key;
         }
     }

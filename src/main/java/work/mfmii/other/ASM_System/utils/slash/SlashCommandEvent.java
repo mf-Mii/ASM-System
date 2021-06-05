@@ -16,8 +16,4 @@ public class SlashCommandEvent extends Event {
     public SlashCommand getSlashCommand() {
         return slashCommand;
     }
-
-    public boolean isFromGuild() {
-        return getSlashCommand().getRaw().has("guild_id");
-    }
 }
