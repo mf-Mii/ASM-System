@@ -1,4 +1,4 @@
-package work.mfmii.other.ASM_System.utils;
+package work.mfmii.other.ASM_System.utils.slash;
 
 import net.dv8tion.jda.api.entities.Guild;
 import okhttp3.MediaType;
@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
 import work.mfmii.other.ASM_System.Config;
-import work.mfmii.other.ASM_System.utils.exceptions.SlashCommandException;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -91,25 +90,44 @@ public class SlashCommandUtil {
 
     public static class Builder{
         JSONObject build_json = new JSONObject();
+
+        /**
+         *
+         * @param name Set command name (/<name>)
+         * @param description Set command description that is showed when type command
+         */
         public Builder(@Nonnull String name, @Nonnull String description){
-            build_json.put("name", name);
+            build_json.put("name", name.toLowerCase());
             build_json.put("description", description);
         }
-
+        /**
+         *
+         * @param name Set command name (/<name>)
+         * @param description Set command description that is showed when type command
+         * @param default_use setting true will be able to use this command everyone
+         */
         public Builder(@Nonnull String name, @Nonnull String description, boolean default_use){
-            build_json.put("name", name);
+            build_json.put("name", name.toLowerCase());
             build_json.put("description", description);
             build_json.put("default_permission", default_use);
         }
 
-        public Builder getName(@Nonnull String name){
+        public Builder setName(@Nonnull String name){
             build_json.put("name", name);
             return this;
         }
 
-        public Builder getDescription(@Nonnull String description){
+        public String getName(){
+            return build_json.getString("name");
+        }
+
+        public Builder setDescription(@Nonnull String description){
             build_json.put("description", description);
             return this;
+        }
+
+        public String getDescription(){
+            return build_json.getString("description");
         }
 
         public Builder addOption(@Nonnull Option option) throws SlashCommandException {
@@ -135,14 +153,20 @@ public class SlashCommandUtil {
     public static class Option{
         JSONObject opt_json = new JSONObject();
         public Option(@Nonnull String name, @Nonnull String description, boolean required, @Nonnull OptionType type){
-            opt_json.put("name", name);
+            opt_json.put("name", name.toLowerCase());
             opt_json.put("description", description);
-            opt_json.put("required", required);
+            if (!type.equals(OptionType.SUB_COMMAND_GROUP)) opt_json.put("required", required);
+            opt_json.put("type", type.getKey());
+        }
+
+        public Option(@Nonnull String name, @Nonnull String description, @Nonnull OptionType type){
+            opt_json.put("name", name.toLowerCase());
+            opt_json.put("description", description);
             opt_json.put("type", type.getKey());
         }
 
         public Option setName(@Nonnull String name){
-            opt_json.put("name", name);
+            opt_json.put("name", name.toLowerCase());
             return this;
         }
 
@@ -238,8 +262,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
-            return new JSONObject(response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
+
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -257,8 +283,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
-            return new JSONObject(response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
+
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -275,8 +303,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
-            return new JSONObject(response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
+
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -294,8 +324,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
-            return new JSONObject(response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
+
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -313,8 +345,10 @@ public class SlashCommandUtil {
         Response response = null;
         try {
             response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-            logger.debug("SlashCommandRequestResponse: "+response.body().string());
-            return new JSONObject(response.body().string());
+            String responseBody = response.body().string();
+            logger.debug("SlashCommandRequestResponse: "+responseBody);
+
+            return new JSONObject(responseBody);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

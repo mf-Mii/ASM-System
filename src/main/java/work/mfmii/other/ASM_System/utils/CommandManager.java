@@ -34,6 +34,8 @@ public abstract class CommandManager {
      */
     public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event);
 
+
+
     public String getCommandsRaw(){
         return new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8");
     }

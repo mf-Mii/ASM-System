@@ -1,4 +1,4 @@
-package work.mfmii.other.ASM_System.utils.exceptions;
+package work.mfmii.other.ASM_System.utils.slash;
 
 public class SlashCommandException extends Exception {
 

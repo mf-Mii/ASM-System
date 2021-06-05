@@ -1,23 +1,24 @@
 package work.mfmii.other.ASM_System;
 
-import net.dv8tion.jda.api.events.*;
+import net.dv8tion.jda.api.events.DisconnectEvent;
+import net.dv8tion.jda.api.events.ExceptionEvent;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.RawGatewayEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import net.dv8tion.jda.internal.JDAImpl;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.utils.EventMap;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommand;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 
 public class Listener implements EventListener {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,22 +36,7 @@ public class Listener implements EventListener {
         }else if(genericEvent instanceof DisconnectEvent){
 
         }else if(genericEvent instanceof ExceptionEvent){
-
-        }else if (genericEvent instanceof ReadyEvent){
-
-        }else if(genericEvent instanceof ResumedEvent){
-
-        }else if(genericEvent instanceof ReconnectedEvent){
-
-        }else if(genericEvent instanceof ShutdownEvent){
-
-        }else if(genericEvent instanceof StatusChangeEvent){
-
-        }else if(genericEvent instanceof GatewayPingEvent){
-
-        }else if(genericEvent instanceof MessageBulkDeleteEvent){
-
-        }else if(genericEvent instanceof GuildMemberJoinEvent){
+            ExceptionEvent event = (ExceptionEvent) genericEvent;
 
         }
 
@@ -59,26 +45,27 @@ public class Listener implements EventListener {
             RawGatewayEvent e = (RawGatewayEvent) genericEvent;
             JSONObject data = new JSONObject(e.getPackage().toString());
             if (data.getString("t").equalsIgnoreCase("INTERACTION_CREATE")){//SlashCommand
-                logger.debug("SlashCommandReceived");
-                logger.debug(e.getPackage().toString());
-                try {
-                    JSONObject j = new JSONObject();
-                    j.put("type", 4)
-                            .put("data", new JSONObject().put("content", "イントラクションを受信📥"));
-                    RequestBody requestBody = RequestBody.create(j.toString(), MediaType.parse("application/json;charset=utf8"));
-                    Request request = new Request.Builder()
-                            .url(String.format("https://discord.com/api/interactions/%s/%s/callback",
-                                    String.valueOf(data.getJSONObject("d").getLong("id")),
-                                    data.getJSONObject("d").getString("token")))
-                            .post(requestBody)
-                            .addHeader("Authorization", ASMSystem.jda.getToken())
-                            .build();
-                    logger.debug(request.toString());
-                    Response response = ASMSystem.jda.getHttpClient().newCall(request).execute();
-                    logger.debug("response: "+response.body().string());
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                JDAImpl jda = (JDAImpl) e.getJDA();
+                SlashCommand slCmd = new SlashCommand(data.getJSONObject("d"),
+                        data.getJSONObject("d").getLong("id"),
+                        e.getJDA().getTextChannelById(data.getJSONObject("d").getString("channel_id")),
+                        false,
+                        e.getJDA().getGuildById(data.getJSONObject("d").getString("guild_id")).getMemberById(data.getJSONObject("d").getJSONObject("member").getJSONObject("user").getString("id")),
+                        OffsetDateTime.now()
+                        );
+                jda.handleEvent(new SlashCommandEvent(
+                        e.getJDA(),
+                        e.getResponseNumber(),
+                        slCmd
+                ));
+            }
+        }else if (genericEvent instanceof SlashCommandEvent){
+            SlashCommandEvent event = (SlashCommandEvent) genericEvent;
+            try {
+                event.getSlashCommand().replyMessage(SlashCommand.replyType.CHANNEL_MESSAGE_WITH_SOURCE, "イントラクションの受信を確認", null, false, true);
+            } catch (IOException e) {
+                event.getSlashCommand().getChannel().sendMessage("Error!!\n```"+e.getMessage()+"```").queue();
+                e.printStackTrace();
             }
         }
     }
