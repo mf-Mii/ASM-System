@@ -12,6 +12,7 @@ import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.CommandMap;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
 import work.mfmii.other.ASM_System.utils.PermissionUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,5 +108,10 @@ public class Help extends CommandManager {
         }
         return false;
 
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
     }
 }

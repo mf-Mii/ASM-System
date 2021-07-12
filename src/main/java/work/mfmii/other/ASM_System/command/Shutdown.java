@@ -6,11 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
-import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
-
-import java.io.File;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 public class Shutdown extends CommandManager {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -29,6 +27,11 @@ public class Shutdown extends CommandManager {
         }
         shutdown();
         return true;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
     }
 
     private static void shutdown(){

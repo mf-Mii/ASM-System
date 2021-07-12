@@ -10,6 +10,7 @@ import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.FileUtil;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -42,6 +43,11 @@ public class Update extends CommandManager {
             event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.update.error.update-file")).queue();
         }
         return true;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
     }
 
     private static void update(final String updateScript, final @Nonnull String updateFile){

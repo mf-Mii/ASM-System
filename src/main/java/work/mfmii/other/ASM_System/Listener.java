@@ -3,21 +3,15 @@ package work.mfmii.other.ASM_System;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ExceptionEvent;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.RawGatewayEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.internal.JDAImpl;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.utils.EventMap;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommand;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
-
-import java.time.OffsetDateTime;
 
 public class Listener implements EventListener {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -26,8 +20,10 @@ public class Listener implements EventListener {
 
     @Override
     public void onEvent(@NotNull GenericEvent genericEvent) {
-        if(genericEvent instanceof MessageReceivedEvent){
+        if(genericEvent instanceof MessageReceivedEvent) {
             new EventMap().dispatch(MessageReceivedEvent.class, genericEvent);
+        }else if(genericEvent instanceof SlashCommandEvent){
+            new EventMap().dispatch(SlashCommandEvent.class, genericEvent);
         }else if(genericEvent instanceof GuildJoinEvent){
             new EventMap().dispatch(GuildJoinEvent.class, genericEvent);
         }else if(genericEvent instanceof GuildBanEvent){
@@ -39,7 +35,7 @@ public class Listener implements EventListener {
 
         }
 
-
+        /*
         else if(genericEvent instanceof RawGatewayEvent){
             RawGatewayEvent e = (RawGatewayEvent) genericEvent;
             JSONObject data = new JSONObject(e.getPackage().toString());
@@ -52,14 +48,16 @@ public class Listener implements EventListener {
                         data.getJSONObject("d").has("guild_id") ? e.getJDA().getGuildById(data.getJSONObject("d").getString("guild_id")).getMemberById(data.getJSONObject("d").getJSONObject("member").getJSONObject("user").getString("id")) : null,
                         OffsetDateTime.now()
                         );
-                jda.handleEvent(new SlashCommandEvent(
+                jda.handleEvent(new work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent(
                         e.getJDA(),
                         e.getResponseNumber(),
                         slCmd
                 ));
             }
-        }else if (genericEvent instanceof SlashCommandEvent){
-            new EventMap().dispatch(SlashCommandEvent.class, genericEvent);
+        }else if (genericEvent instanceof work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent){
+            new EventMap().dispatch(work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent.class, genericEvent);
         }
+
+             */
     }
 }

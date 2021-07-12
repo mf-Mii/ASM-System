@@ -9,6 +9,7 @@ import work.mfmii.other.ASM_System.ASMSystem;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.io.File;
 
@@ -33,6 +34,11 @@ public class Reboot extends CommandManager {
             event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.reboot.error.args-length")).queue();
         }
         return true;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
     }
 
     private static void restart(final String restartScript){

@@ -10,6 +10,7 @@ import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.GuildUtil;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,11 @@ public class Leave extends CommandManager {
         } catch (Exception ignored) {
         }
         g.leave().queue();
+        return false;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
         return false;
     }
 }

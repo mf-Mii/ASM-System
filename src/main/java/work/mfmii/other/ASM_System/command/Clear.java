@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +137,13 @@ public class Clear extends CommandManager {
 
         return true;
     }
-//旧版, Slashするときに役立つかも(コマンドの削除がない)
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
+    }
+
+    //旧版, Slashするときに役立つかも(コマンドの削除がない)
     public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         if (!event.isFromGuild()){

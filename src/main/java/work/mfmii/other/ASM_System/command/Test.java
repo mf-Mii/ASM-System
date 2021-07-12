@@ -24,8 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
+import work.mfmii.other.ASM_System.utils.MailUtil;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
 import work.mfmii.other.ASM_System.utils.VerifyUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 import work.mfmii.other.ASM_System.utils.slash.SlashCommandException;
 import work.mfmii.other.ASM_System.utils.slash.SlashCommandUtil;
 
@@ -302,9 +304,26 @@ public class Test extends CommandManager {
                 }else {
                     event.getChannel().sendMessage("Args length error").queue();
                 }
+            }else if (args[0].equalsIgnoreCase("sendmail")){
+                if (args.length < 2) {
+                    event.getChannel().sendMessage("Please set e-mail address").queue();
+                    return true;
+                }
+                List<String> list = new ArrayList<>();
+                for (int i = 1; i < args.length; i++) {
+                    list.add(args[i]);
+                }
+                list.forEach(s -> {
+                    new MailUtil().sendMail(s, "Test Mail", "This Mail sent from DiscordBot.");
+                });
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        return false;
     }
 
     public class AudioPlayerSendHandler implements AudioSendHandler {

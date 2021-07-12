@@ -14,6 +14,7 @@ import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
 import work.mfmii.other.ASM_System.utils.PermissionUtil;
 import work.mfmii.other.ASM_System.utils.UserUtil;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -159,6 +160,11 @@ public class UserInfo extends CommandManager {
                 return true;
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
         return false;
     }
 }

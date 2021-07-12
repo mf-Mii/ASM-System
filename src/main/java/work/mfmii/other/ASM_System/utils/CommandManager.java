@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public abstract class CommandManager {
      */
     public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event);
 
-
+    public abstract boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event);
 
     public String getCommandsRaw(){
         return new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8");
