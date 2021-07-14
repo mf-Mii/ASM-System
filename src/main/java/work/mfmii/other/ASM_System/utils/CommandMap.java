@@ -1,12 +1,15 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class CommandMap {
@@ -79,6 +82,11 @@ public class CommandMap {
             return false;
         }
         if (new PermissionUtil().hasPermission(event.isFromGuild()?event.getGuild().getId():null, event.getChannel().getId(), sender.getId(), target.getPermission())) {
+            if (!target.isPrefixCommand()){
+                event.getMessage().reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.prefix-disallow.message")).complete().delete().queueAfter(5, TimeUnit.SECONDS);
+                event.getMessage().delete().queueAfter(5, TimeUnit.SECONDS);
+                return true;
+            }
             try {
                 if (target.isAdminCommand()) {
                     if(isAdminPrefix)
@@ -96,6 +104,34 @@ public class CommandMap {
             }
         }else {
             event.getChannel().sendMessage(target.getPermissionMessage(new LanguageUtil().getUserLanguage(sender))).queue();
+        }
+
+        // return true as command was handled
+        return true;
+    }
+
+    public boolean dispatchSlash(User sender, String name, SlashCommandEvent event){
+        CommandManager target = getCommand(name);
+        if(target == null){
+            return false;
+        }
+        if (new PermissionUtil().hasPermission(event.isFromGuild()?event.getGuild().getId():null, event.getChannel().getId(), sender.getId(), target.getPermission())) {
+            if (!target.isSlashCommand()){
+                event.reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.slash-disallow.message"))
+                        .addActionRow(Button.primary(
+                                "cmd:command "+target.getName(),
+                                new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.slash-disallow.button")))
+                        .setEphemeral(true).queue();
+                return true;
+            }
+            try {
+                target.executeSlash(sender, name, event);
+            } catch (Throwable ex) {
+                System.out.println("Unhandled exception executing '/" + name + "' in " + target + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }else {
+            event.reply(target.getPermissionMessage(new LanguageUtil().getUserLanguage(sender))).setEphemeral(true).queue();
         }
 
         // return true as command was handled

@@ -10,8 +10,6 @@ import com.optimaize.langdetect.text.CommonTextObjectFactories;
 import com.optimaize.langdetect.text.TextObject;
 import com.optimaize.langdetect.text.TextObjectFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,7 +20,9 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,11 +44,11 @@ public class MessageGenerate {
             if (!stack.isEmpty()) stack += "\n        ";
             stack += stackTraceElement.getClassName()+".class ("+stackTraceElement.getMethodName()+"() :"+stackTraceElement.getLineNumber()+")";
         }
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("Error: "+exception.getMessage())
-                    .setDescription("```"+exception.getClass().getName()+""+exception.getMessage()+"\n"+stack+"```")
-                    .setFooter("ASM Bot by mf_Mii | "+ OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
-            return eb.build();
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Error: "+exception.getMessage())
+                .setDescription("```"+exception.getClass().getName()+""+exception.getMessage()+"\n"+stack+"```")
+                .setFooter("ASM Bot by mf_Mii | "+ OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+        return eb.build();
     }
 
     public String errorMessageAsText(Exception exception){

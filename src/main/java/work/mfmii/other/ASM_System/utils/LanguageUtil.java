@@ -6,7 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,7 +70,8 @@ public class LanguageUtil {
         ENGLISH("en"),
         JAPANESE("ja"),
         CHINESE("zh"),
-        OTHER(new Config(Config.ConfigType.JSON).getString("default_language"));
+        OTHER(new Config(Config.ConfigType.JSON).getString("default_language")),
+        DEFAULT(new Config(Config.ConfigType.JSON).getString("default_language"));
 
         private final String key;
 

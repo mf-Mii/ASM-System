@@ -1,6 +1,7 @@
 package work.mfmii.other.ASM_System.command;
 
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -8,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.ASMSystem;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 public class Shutdown extends CommandManager {
     Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -13,11 +13,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
 import okhttp3.*;
 import okio.Buffer;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -27,9 +27,6 @@ import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.MailUtil;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
 import work.mfmii.other.ASM_System.utils.VerifyUtil;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandException;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -227,83 +224,6 @@ public class Test extends CommandManager {
                 });
 
                  */
-            }else if (args[0].equalsIgnoreCase("slash")){
-                if (args.length >= 3) {
-                    if (args[1].equalsIgnoreCase("add")) {//
-                        if (args.length >= 4) {
-                            String name = null;
-                            String description = null;
-                            List<SlashCommandUtil.Option> opts = new ArrayList<>();
-
-                            if (args[2].equalsIgnoreCase("-template") || args[2].equalsIgnoreCase("-t")){
-                                if (args[3].equalsIgnoreCase("1")){
-                                    name = "EXAMPLE";
-                                    description = "This command is example made with template:1";
-                                }
-                                if (args[3].equalsIgnoreCase("2")){
-                                    name = "ARGS-EXAMPLE";
-                                    description = "This command is example for args made with template:2";
-                                    try {
-                                        opts.add(new SlashCommandUtil.Option("Args1", "Example args 1", true, SlashCommandUtil.OptionType.STRING).addChoice("Choice1", "Choice1").addChoice("Choice2", "Choice2"));
-                                    } catch (SlashCommandException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                else {
-                                    event.getChannel().sendMessage("please select template").queue();
-                                    return true;
-                                }
-                            }else {
-                                name = args[2];
-                                description = args[3];
-                                if (args.length >= 5){
-                                    for (String s : args[4].split(",")) {
-                                        opts.add(new SlashCommandUtil.Option(s.split(":")[0], s.split(":")[1], false, SlashCommandUtil.OptionType.STRING));
-                                    }
-                                }
-                            }
-                            SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder(name, description);
-                            opts.forEach(option -> {
-                                try {
-                                    builder.addOption(option);
-                                } catch (SlashCommandException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                            logger.debug(builder.build().toString());
-                            new SlashCommandUtil().submitToDiscord(builder.build(), "821326948365107200");
-
-                        }
-                    }else if (args[1].equalsIgnoreCase("1")){
-                        String name = RandomStringUtils.randomAlphabetic(10);
-                        String desc = RandomStringUtils.randomAlphabetic(10);
-                        //String name = "test-a";
-                        //String desc = "test-a";
-                        SlashCommandUtil.Builder builder = new SlashCommandUtil.Builder(name, desc);
-                        for (int i = 0; i < 5; i++) {
-                            String optname = RandomStringUtils.randomAlphabetic(10);
-                            String optdesc = RandomStringUtils.randomAlphabetic(10);
-                            SlashCommandUtil.Option option = new SlashCommandUtil.Option(optname, optdesc, SlashCommandUtil.OptionType.SUB_COMMAND_GROUP);
-                            try {
-                                /*
-                                option.addChoice("ChoiceA", "ChoiceA")
-                                        .addChoice("ChoiceB", "ChoiceB")
-                                        .addChoice("ChoiceC", "ChoiceC");
-                                */
-                                option.addOption(new SlashCommandUtil.Option("OptA", "AAA", SlashCommandUtil.OptionType.SUB_COMMAND))
-                                        .addOption(new SlashCommandUtil.Option("OptB", "BBB", SlashCommandUtil.OptionType.SUB_COMMAND))
-                                        .addOption(new SlashCommandUtil.Option("OptC", "CCC", SlashCommandUtil.OptionType.SUB_COMMAND));
-                                builder.addOption(option);
-                            } catch (SlashCommandException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        logger.debug("sendBuilt: "+builder.build().toString());
-                        new SlashCommandUtil().submitToDiscord(builder.build());
-                    }
-                }else {
-                    event.getChannel().sendMessage("Args length error").queue();
-                }
             }else if (args[0].equalsIgnoreCase("sendmail")){
                 if (args.length < 2) {
                     event.getChannel().sendMessage("Please set e-mail address").queue();

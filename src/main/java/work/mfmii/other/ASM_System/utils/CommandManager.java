@@ -1,13 +1,12 @@
 package work.mfmii.other.ASM_System.utils;
 
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import work.mfmii.other.ASM_System.utils.slash.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +57,11 @@ public abstract class CommandManager {
      *
      * @return Permission name, or null if none
      */
-    @Nullable
+    @NotNull
     public String getPermission() {
-        return new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".permission");
+        String res = new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".permission");
+        if (res == null) res = "asm.command."+this.getName();
+        return res;
     }
 
     /**
@@ -162,9 +163,10 @@ public abstract class CommandManager {
      *
      * @return Permission check failed message
      */
-    @Nullable
+    @NotNull
     public String getPermissionMessage(LanguageUtil.Language lang) {
         String message = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".permissionMessage");
+        if (message==null) message="You don't have the permission to run this command.";
         message = message.replaceAll("\\$\\{default\\}", new LanguageUtil().getMessage(lang, "default.permissionMessage"));
         return message;
     }
@@ -177,6 +179,7 @@ public abstract class CommandManager {
     @NotNull
     public String getDescription(LanguageUtil.Language lang) {
         String description = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".description");
+        if (description==null) description="No description.";
         description = description.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".description"));
         return description;
     }
@@ -189,6 +192,7 @@ public abstract class CommandManager {
     @NotNull
     public String getAbout(LanguageUtil.Language lang) {
         String about = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".about");
+        if (about == null) about="No about.";
         about = about.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".about"));
         return about;
     }
@@ -202,18 +206,37 @@ public abstract class CommandManager {
     @NotNull
     public String getUsage(LanguageUtil.Language lang) {
         String usage = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".usage");
+        if (usage == null) usage = "No usage.";
         if (usage.contains("${default}")) usage = usage.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
         return usage;
     }
 
     /**
-     * Check it is the command for admins
+     * Check  the command is for admins
      *
      * @return Boolean true is admin command
      */
     @NotNull
     public boolean isAdminCommand(){
         return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8")), this.name+".isAdmin");
+    }
+
+    /**
+     * Check the command can use prefix
+     * @return Boolean
+     */
+    @NotNull
+    public boolean isPrefixCommand(){
+        return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8")), this.name+".prefix");
+    }
+
+    /**
+     * Check the command can use prefix
+     * @return Boolean
+     */
+    @NotNull
+    public boolean isSlashCommand(){
+        return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8")), this.name+".slash");
     }
 
 
