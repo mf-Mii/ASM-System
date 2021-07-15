@@ -31,12 +31,12 @@ public class MessageReceived extends EventManager {
             if (event.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("prefix"))) {
                 boolean exec_res = new CommandMap().dispatch(event.getAuthor(), event.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("prefix"), ""), event, false);
                 if (!exec_res) {
-                    event.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(event.getAuthor()), "command.unknown")).queue();
+                    event.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(event.getAuthor()), "command.error-msg.unknown")).queue();
                 }
             } else if (event.getMessage().getContentRaw().startsWith(new Config(Config.ConfigType.JSON).getString("admin.prefix"))) {
                 boolean exec_res = new CommandMap().dispatch(event.getAuthor(), event.getMessage().getContentRaw().replaceFirst(new Config(Config.ConfigType.JSON).getString("admin.prefix"), ""), event, true);
                 if (!exec_res) {
-                    event.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(event.getAuthor()), "command.unknown")).queue();
+                    event.getChannel().sendMessage(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(event.getAuthor()), "command.error-msg.unknown")).queue();
                 }
             }
             return true;

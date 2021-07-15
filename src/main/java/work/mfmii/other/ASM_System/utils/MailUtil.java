@@ -6,13 +6,20 @@ import work.mfmii.other.ASM_System.Config;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class MailUtil {
     public MailUtil(){}
 
-    public boolean sendMail(@NotNull String target, @NotNull String title, @NotNull String content) {
+    public boolean sendMail(@NotNull String target, @NotNull String title, @NotNull String content) throws Exception {
+        List<String> list = new ArrayList<>();
+        list.add(target);
+        return sendMail(list, title, content);
+    }
+
+    public boolean sendMail(@NotNull List<String> targets, @NotNull String title, @NotNull String content) throws Exception {
         Properties props = new Properties();
         props.put("mail.smtp.host", new Config(Config.ConfigType.JSON).getString("mail.server.smtp-addr"));
         props.put("mail.smtp.port", new Config(Config.ConfigType.JSON).getInt("mail.server.smtp-port"));
@@ -40,25 +47,25 @@ public class MailUtil {
                     }
                 });
 
-        try {
-            MimeMessage message = new MimeMessage(session);
+        MimeMessage message = new MimeMessage(session);
 
-            // Set From:
-            message.setFrom(new InternetAddress(from, sender));
-            // Set ReplyTo(ユーザーが返信したとき、宛先となるところ):
-            message.setReplyTo(new Address[]{new InternetAddress(from)});
-            // Set To:
-            message.setRecipient(Message.RecipientType.TO, new InternetAddress(target));
-
-            message.setSubject(title, charset);
-            message.setText(header+"\n"+content+"\n"+footer, charset);
-
-            message.setHeader("Content-Transfer-Encoding", encoding);
-
-            Transport.send(message);
-            return true;
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        // Set From
+        message.setFrom(new InternetAddress(from, sender));
+        // Set ReplyTo(ユーザーが返信したとき、宛先となるところ):
+        message.setReplyTo(new Address[]{new InternetAddress(from)});
+        // Set To
+        message.setRecipient(Message.RecipientType.TO, new InternetAddress(new Config(Config.ConfigType.JSON).getString("contact.main_mail")));
+        //SetBCC
+        for (String s: targets) {
+            message.setRecipient(Message.RecipientType.BCC, new InternetAddress(s));
         }
+
+        message.setSubject(title, charset);
+        message.setText(header+"\n"+content+"\n"+footer, charset);
+
+        message.setHeader("Content-Transfer-Encoding", encoding);
+
+        Transport.send(message);
+        return true;
     }
 }

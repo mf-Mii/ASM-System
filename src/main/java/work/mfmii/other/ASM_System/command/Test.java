@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
-import work.mfmii.other.ASM_System.utils.MailUtil;
 import work.mfmii.other.ASM_System.utils.MessageGenerate;
 import work.mfmii.other.ASM_System.utils.VerifyUtil;
 
@@ -224,7 +223,9 @@ public class Test extends CommandManager {
                 });
 
                  */
-            }else if (args[0].equalsIgnoreCase("sendmail")){
+            }
+            /*
+            else if (args[0].equalsIgnoreCase("sendmail")){
                 if (args.length < 2) {
                     event.getChannel().sendMessage("Please set e-mail address").queue();
                     return true;
@@ -237,6 +238,7 @@ public class Test extends CommandManager {
                     new MailUtil().sendMail(s, "Test Mail", "This Mail sent from DiscordBot.");
                 });
             }
+             */
         }
         return true;
     }

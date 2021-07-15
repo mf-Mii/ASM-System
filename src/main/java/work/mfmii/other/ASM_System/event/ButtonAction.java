@@ -3,7 +3,6 @@ package work.mfmii.other.ASM_System.event;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,6 @@ public class ButtonAction extends EventManager {
         logger.debug("ButtonID: "+(event.getButton().getId()==null?null:event.getButton().getId()));
         if (event.getButton().getId().equalsIgnoreCase("re_cmd:ping")){
             EmbedBuilder emBuild = new EmbedBuilder().setTitle("Ping").addField("GatewayPing", event.getJDA().getGatewayPing()+"ms", false);
-            Button button = Button.secondary("re_cmd:ping", "Retest");
             event.getInteraction().editMessageEmbeds(emBuild.build()).queue();
         }
         return false;

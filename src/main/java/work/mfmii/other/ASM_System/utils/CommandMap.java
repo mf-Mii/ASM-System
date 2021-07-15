@@ -83,7 +83,7 @@ public class CommandMap {
         }
         if (new PermissionUtil().hasPermission(event.isFromGuild()?event.getGuild().getId():null, event.getChannel().getId(), sender.getId(), target.getPermission())) {
             if (!target.isPrefixCommand()){
-                event.getMessage().reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.prefix-disallow.message")).complete().delete().queueAfter(5, TimeUnit.SECONDS);
+                event.getMessage().reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.error-msg.prefix-disallow.message")).complete().delete().queueAfter(5, TimeUnit.SECONDS);
                 event.getMessage().delete().queueAfter(5, TimeUnit.SECONDS);
                 return true;
             }
@@ -117,10 +117,10 @@ public class CommandMap {
         }
         if (new PermissionUtil().hasPermission(event.isFromGuild()?event.getGuild().getId():null, event.getChannel().getId(), sender.getId(), target.getPermission())) {
             if (!target.isSlashCommand()){
-                event.reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.slash-disallow.message"))
+                event.reply(new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.error-msg.slash-disallow.message"))
                         .addActionRow(Button.primary(
                                 "cmd:command "+target.getName(),
-                                new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.slash-disallow.button")))
+                                new LanguageUtil().getMessage(new LanguageUtil().getUserLanguage(sender), "command.error-msg.slash-disallow.button")))
                         .setEphemeral(true).queue();
                 return true;
             }
