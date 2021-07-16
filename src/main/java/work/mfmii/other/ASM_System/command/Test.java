@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -239,6 +240,28 @@ public class Test extends CommandManager {
                 });
             }
              */
+            else if(args[0].equalsIgnoreCase("user")){
+                if (args.length!=2){
+                    event.getMessage().reply("Usage: a#test user <ID>").queue();
+                    return true;
+                }
+                String targetId = args[1];
+                User target = event.getJDA().retrieveUserById(targetId).complete();
+                if (target==null) {
+                    event.getChannel().sendMessage("Unknown User").queue();
+                    return true;
+                }
+                List<String> li = new ArrayList<>();
+                li.add("Name: "+target.getName());
+                li.add("Discriminator: "+target.getDiscriminator());
+                li.add("AvatarURL: "+target.getAvatarUrl());
+                li.add("AvatarID: "+target.getAvatarId());
+                li.add("hasPrivateChannel: "+target.hasPrivateChannel());
+                li.add("createdDate: "+target.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS")));
+                li.add("isBot: "+target.isBot());
+                li.add("isSystem: "+target.isSystem());
+                event.getChannel().sendMessage(String.join("\n", li)).queue();
+            }
         }
         return true;
     }

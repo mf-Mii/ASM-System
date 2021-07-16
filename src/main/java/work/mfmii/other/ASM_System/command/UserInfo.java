@@ -1,7 +1,6 @@
 package work.mfmii.other.ASM_System.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -46,7 +45,7 @@ public class UserInfo extends CommandManager {
 
                 String targetId = isSelf ? sender.getId() : args[0];
                 final EmbedBuilder embedBuilder = new EmbedBuilder();
-                User target = event.getJDA().getUserById(targetId);
+                User target = event.getJDA().retrieveUserById(targetId).complete();
 
 
                 StringBuilder output = new StringBuilder();
@@ -87,7 +86,7 @@ public class UserInfo extends CommandManager {
                         embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.reputation"), reputation_str, true);
                     }
                 } else {
-                    output.append(new LanguageUtil().getMessage(lang, "command.userinfo.text").replaceAll("\\$\\{username\\}", target.getAsTag()));
+                    output.append(new LanguageUtil().getMessage(lang, "command.userinfo.embed.text").replaceAll("\\$\\{username\\}", target.getAsTag()));
                     String reputation_str;
                     double reputation = new UserUtil(target).getReputation();
                     if (reputation == -125) {
@@ -101,16 +100,45 @@ public class UserInfo extends CommandManager {
                             .setThumbnail(target.getAvatarUrl());
                     embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.nameid"), String.format("%s\n%s", target.getAsTag(), targetId), true)
                             .addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.created"), target.getTimeCreated().format(DateTimeFormatter.ofPattern("yyyy年M月dd日\nHH時mm分ss秒")), true);
-                    {
+                    /*{
                         Member targetMember = target.getMutualGuilds().size()!=0?target.getMutualGuilds().get(0).getMember(target):null;
                         logger.debug("status target is null: "+(targetMember==null));
                         String status = "";
                         if (targetMember.getOnlineStatus() == OnlineStatus.ONLINE)
-                            status = new LanguageUtil().getMessage(lang, "default.status.online");
+                            status = "<:status_online:865565440984875018>"+new LanguageUtil().getMessage(lang, "default.status.online");
                         if (targetMember.getOnlineStatus() == OnlineStatus.IDLE)
-                            status = new LanguageUtil().getMessage(lang, "default.status.idle");
-                        embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.status"), targetMember.getOnlineStatus().name(), true);
+                            status = "<:status_idle:865565441077149726>"+new LanguageUtil().getMessage(lang, "default.status.idle");
+                        if (targetMember.getOnlineStatus() == OnlineStatus.DO_NOT_DISTURB)
+                            status = "<:status_dnd:865565440990117908>"+new LanguageUtil().getMessage(lang, "default.status.dnd");
+                        if (targetMember.getOnlineStatus() == OnlineStatus.OFFLINE || targetMember.getOnlineStatus() == OnlineStatus.INVISIBLE)
+                            status = "<:status_offline:865565441010434058>"+new LanguageUtil().getMessage(lang, "default.status.offline");
+                        if (targetMember.getOnlineStatus(ClientType.MOBILE) == OnlineStatus.ONLINE)
+                            status = "<:status_offline:865565441010434058>"+new LanguageUtil().getMessage(lang, "default.status.online-mobile");
+                        embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.status"), status, true);
+                        if (!target.isBot()) {
+                            ClientType clientType = null;
+                            for (ClientType activeClient : targetMember.getActiveClients()) {
+                                if (clientType != ClientType.DESKTOP) {
+                                    if (clientType != ClientType.WEB) {
+                                        clientType = activeClient;
+                                    }
+                                }
+                            }
+                            String client = "UNKNOWN";
+                            if (clientType == null) {
+                                client = new LanguageUtil().getMessage(lang, "default.client.no");
+                            } else if (clientType == ClientType.DESKTOP) {
+                                client = "<:client_desktop:865574332397780992>" + new LanguageUtil().getMessage(lang, "default.client.desktop");
+                            } else if (clientType == ClientType.WEB) {
+                                client = "<:client_web:865574332369862666>"+new LanguageUtil().getMessage(lang, "default.client.web");
+                            } else if (clientType == ClientType.MOBILE) {
+                                client = "<:client_mobile:865574332390178856>"+new LanguageUtil().getMessage(lang, "default.client.mobile");
+                            }
+                            embedBuilder.addField(new LanguageUtil().getMessage(lang, "command.userinfo.embed.field.client"), client, true);
+                        }
                     }
+
+                     */
 
                     if (isGuild && target.getMutualGuilds().contains(event.getGuild())) {
                         Member targetMember = event.getGuild().getMember(target);
