@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import work.mfmii.other.ASM_System.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public abstract class CommandManager {
      * @param args All arguments passed to the command, split via ' '
      * @return true if the command was successful, otherwise false
      */
-    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event);
+    public abstract boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) throws Exception;
 
     public abstract boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event);
 
@@ -207,8 +208,18 @@ public abstract class CommandManager {
     public String getUsage(LanguageUtil.Language lang) {
         String usage = new LanguageUtil().getMessage(lang, "command."+this.name.toLowerCase()+".usage");
         if (usage == null) usage = "No usage.";
-        if (usage.contains("${default}")) usage = usage.replaceAll("\\$\\{default\\}", new FileUtil().getStringFromJSON(new JSONObject(getCommandsRaw()), this.name.toLowerCase()+".usage"));
+        if (usage.contains("${default}")) usage = usage.replaceAll("\\$\\{default\\}",new Config(Config.ConfigType.COMMANDS).getString(this.name.toLowerCase()+".usage"));
         return usage;
+    }
+
+    /**
+     * Gets the category command joined
+     *
+     * @return String category name
+     */
+    @NotNull
+    public String getCategory() {
+        return new Config(Config.ConfigType.COMMANDS).getString(this.name+".category");
     }
 
     /**
@@ -238,6 +249,7 @@ public abstract class CommandManager {
     public boolean isSlashCommand(){
         return new FileUtil().getBooleanFromJSON(new JSONObject(new FileUtil().readFile(new FileUtil().getFile("commands.json"), "utf8")), this.name+".slash");
     }
+
 
 
 }

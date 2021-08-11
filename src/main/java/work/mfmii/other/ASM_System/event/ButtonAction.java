@@ -17,12 +17,18 @@ public class ButtonAction extends EventManager {
     @Override
     public boolean execute(@NotNull GenericEvent genericEvent) {
         ButtonClickEvent event = (ButtonClickEvent) genericEvent;
-        logger.debug("ButtonID: "+(event.getButton().getId()==null?null:event.getButton().getId()));
+        logger.debug("ButtonID: "+(event.getButton()==null?null:event.getButton().getId()));
+        if (event.getButton()==null){
+            return false;
+        }
         if (event.getButton().getId().equalsIgnoreCase("re_cmd:ping")){
             EmbedBuilder emBuild = new EmbedBuilder().setTitle("Ping").addField("GatewayPing", event.getJDA().getGatewayPing()+"ms", false);
             event.getInteraction().editMessageEmbeds(emBuild.build()).queue();
         }
-        return false;
+        if (event.getButton().getId().equalsIgnoreCase("msg_del")) {
+            if (event.getMessage()!=null) event.getMessage().delete().queue();
+        }
+        return true;
     }
 
 }

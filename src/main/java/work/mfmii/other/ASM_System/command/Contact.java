@@ -4,8 +4,6 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -17,10 +15,8 @@ import work.mfmii.other.ASM_System.Config;
 import work.mfmii.other.ASM_System.utils.CommandManager;
 import work.mfmii.other.ASM_System.utils.LanguageUtil;
 import work.mfmii.other.ASM_System.utils.MailUtil;
+import work.mfmii.other.ASM_System.utils.MessageGenerate;
 
-import java.awt.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -33,6 +29,7 @@ public class Contact extends CommandManager {
 
     @Override
     public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
+        event.getGuild().moveVoiceMember(event.getMember(), event.getGuild().getVoiceChannelById("")).queue();
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         if (args.length == 0){
             event.getChannel().sendMessage(new LanguageUtil().getMessage(lang, "command.contact.error.no-type")).queue();
@@ -58,25 +55,8 @@ public class Contact extends CommandManager {
                 sendMessage(sender, String.join(" ", messages), ContactType.fromKey(args[0]), false);
                 response.editMessage("✅"+new LanguageUtil().getMessage(lang, "command.contact.success.ok")).mentionRepliedUser(false).queue();
             } catch (Exception exception) {
-                EmbedBuilder builder = new EmbedBuilder()
-                        .setColor(Color.RED)
-                        .setTitle(String.format(new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.title"), exception.getMessage()));
-                builder.addField(
-                        new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.cause"),
-                        String.format("```%s```", exception.toString()),
-                        false);
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                exception.printStackTrace(pw);
-                builder.addField(
-                        new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.detail"),
-                        "```"+(sw.toString().length()>1018?sw.toString().substring(0, 1000)+"\n        more...":sw.toString())+"```",
-                        false
-                );
-                response.editMessage(
-                        new MessageBuilder().setContent(new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.text"))
-                                .setEmbeds(builder.build()).build()
-                ).mentionRepliedUser(false).queue();
+                response.editMessage(new MessageGenerate().errorMessage(lang, exception)).mentionRepliedUser(false).queue();
+                exception.printStackTrace();
             }
             return true;
         }
@@ -84,6 +64,14 @@ public class Contact extends CommandManager {
 
     @Override
     public boolean executeSlash(@NotNull User sender, @NotNull String command, @NotNull SlashCommandEvent event) {
+        String type = event.getOption("type")!=null?event.getOption("type").getAsString():null;
+        String content = event.getOption("body")!=null?event.getOption("body").getAsString():null;
+        try {
+            sendMessage(sender, content, ContactType.fromKey(type), true);
+        } catch (Exception e) {
+            event.reply(new MessageGenerate().errorMessage(new LanguageUtil().getUserLanguage(sender), e)).setEphemeral(true).mentionRepliedUser(false).queue();
+            e.printStackTrace();
+        }
         return false;
     }
 

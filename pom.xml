@@ -63,7 +63,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_296</version>
+            <version>4.3.0_307</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.23</version>
+            <version>8.0.26</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -105,6 +105,12 @@
             <artifactId>language-detector</artifactId>
             <version>0.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.14.1</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

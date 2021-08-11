@@ -69,7 +69,23 @@ public class StartUp {
                 commands.put(commandManager.getName(), commandManager);
             }
         });
-        if (!registeredCommands.contains("commands") && commands.containsKey("commands")) {
+        registeredCommands.forEach(s -> {
+            if(cmap.getCommand(s)==null){
+                String cmdId = null;
+                for (net.dv8tion.jda.api.interactions.commands.Command command : ASMSystem.jda.retrieveCommands().complete()) {
+                    if (command.getName().equalsIgnoreCase(s)){
+                        cmdId = command.getId();
+                    }
+                }
+                if (cmdId!=null) ASMSystem.jda.deleteCommandById(cmdId).queue();
+            }
+        });
+
+        Map<String, Boolean> updateAllow = new HashMap<>();
+        updateAllow.put("commands", false);
+        updateAllow.put("userinfo", true);
+
+        if (commands.containsKey("commands")) {
             CommandManager cmd = cmap.getCommand("commands");
             CommandData data = new CommandData(cmd.getName(), cmd.getAbout(LanguageUtil.Language.DEFAULT) + " / " + cmd.getAbout(LanguageUtil.Language.ENGLISH));
             OptionData optionData = new OptionData(OptionType.STRING, "name", "Select command name that you want to get help", false);
@@ -78,7 +94,19 @@ public class StartUp {
                 logger.debug("Adding choice: "+s);
             });
             data.addOptions(optionData);
-            ASMSystem.jda.upsertCommand(data).queue();
+            if (updateAllow.get("commands")) ASMSystem.jda.upsertCommand(data).queue();
+        }
+        if (commands.containsKey("userinfo")){
+            CommandManager cmd = cmap.getCommand("userinfo");
+            CommandData data = new CommandData(cmd.getName(), cmd.getAbout(LanguageUtil.Language.DEFAULT) + " / " + cmd.getAbout(LanguageUtil.Language.ENGLISH));
+            OptionData userOpt = new OptionData(OptionType.USER, "user", "Select user you want to view its info. *Cannot be use with option \"id\"", false);
+            OptionData idOpt = new OptionData(OptionType.STRING, "id", "Type user id you want to view its info. *Cannot be use with option \"user\"", false);
+            OptionData publicOpt = new OptionData(OptionType.BOOLEAN, "public", "If public is true, everyone in channel can see response. Default value is false.", false);
+            data.addOptions(userOpt);
+            data.addOptions(idOpt);
+            data.addOptions(publicOpt);
+
+            if(updateAllow.get("userinfo")) ASMSystem.jda.upsertCommand(data).queue();
         }
 
 

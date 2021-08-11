@@ -10,7 +10,9 @@ import com.optimaize.langdetect.text.CommonTextObjectFactories;
 import com.optimaize.langdetect.text.TextObject;
 import com.optimaize.langdetect.text.TextObjectFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.components.Button;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -20,56 +22,42 @@ import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.*;
+import java.io.*;
 import java.nio.file.Files;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessageGenerate {
     Logger logger = LoggerFactory.getLogger(this.getClass());
-    public MessageGenerate(){
+    public MessageGenerate(){}
+
+    public Message errorMessage(LanguageUtil.Language lang, Exception exception){
+        EmbedBuilder builder = new EmbedBuilder()
+                .setColor(Color.RED)
+                .setTitle(String.format(new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.title"), exception.getMessage()));
+        builder.addField(
+                new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.cause"),
+                String.format("```%s```", exception.toString()),
+                false);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        exception.printStackTrace(pw);
+        builder.addField(
+                new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.detail"),
+                "```"+(sw.toString().length()>1018?sw.toString().substring(0, 1000)+"\n        more...":sw.toString())+"```",
+                false
+        );
+        builder.setTimestamp(LocalDateTime.now());
+        return new MessageBuilder()
+                .setContent(new LanguageUtil().getMessage(lang, "command.error-msg.exception.embed.text"))
+                .setEmbeds(builder.build())
+                .build();
     }
 
-    public MessageEmbed errorMessageAsEmbed(Exception exception){
-        String stack = "";
-        for (StackTraceElement stackTraceElement : exception.getStackTrace()) {
-            if (stack.length() >= 1500) {
-                stack += "[more]...";
-                break;
-            }
-            if (!stack.isEmpty()) stack += "\n        ";
-            stack += stackTraceElement.getClassName()+".class ("+stackTraceElement.getMethodName()+"() :"+stackTraceElement.getLineNumber()+")";
-        }
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Error: "+exception.getMessage())
-                .setDescription("```"+exception.getClass().getName()+""+exception.getMessage()+"\n"+stack+"```")
-                .setFooter("ASM Bot by mf_Mii | "+ OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
-        return eb.build();
-    }
-
-    public String errorMessageAsText(Exception exception){
-
-        String stack = "";
-        for (StackTraceElement stackTraceElement : exception.getStackTrace()) {
-            if (stack.length() >= 1500) {
-                stack += "[more]...";
-                break;
-            }
-            if (!stack.isEmpty()) stack += "\n        ";
-            stack += stackTraceElement.getClassName()+".class ("+stackTraceElement.getMethodName()+"() :"+stackTraceElement.getLineNumber()+")";
-        }
-        StringBuilder sb1 = new StringBuilder();
-        sb1.append("**Error: ")
-                .append(exception.getMessage())
-                .append("**\n")
-                .append("```")
-                .append(stack)
-                .append("```");
-        return sb1.toString();
+    public Button closeButton(LanguageUtil.Language lang){
+        return Button.danger("msg_del", new LanguageUtil().getMessage(lang, "default.close"));
     }
     
     public byte[] textToSpeech(@Nonnull final String text, String lang) throws IOException {

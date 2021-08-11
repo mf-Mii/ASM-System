@@ -54,11 +54,11 @@ public class LanguageUtil {
             rs.close();
             pstmt.close();
             con.close();
-            return Language.OTHER;
+            return Language.DEFAULT;
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            return Language.OTHER;
+            return Language.DEFAULT;
         }
     }
 

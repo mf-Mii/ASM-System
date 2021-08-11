@@ -1,7 +1,5 @@
 package work.mfmii.other.ASM_System.utils;
 
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +22,7 @@ public abstract class EventManager {
      * @param genericEvent Event from JDA
      * @return true if the event executing was successful, otherwise false
      */
-    public abstract boolean execute(@NotNull GenericEvent genericEvent);
+    public abstract boolean execute(@NotNull GenericEvent genericEvent) throws Exception;
 
     public String getEventsRaw(){
         return new FileUtil().readFile(new FileUtil().getFile("events.json"), "utf8");

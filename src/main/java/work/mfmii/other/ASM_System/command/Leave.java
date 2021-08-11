@@ -23,7 +23,7 @@ public class Leave extends CommandManager {
     }
 
     @Override
-    public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) {
+    public boolean execute(@NotNull User sender, @NotNull String command, @NotNull String[] args, @NotNull MessageReceivedEvent event) throws Exception {
         debug = new Config(Config.ConfigType.JSON).isDebugMode();
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         String targetId = event.isFromGuild() ? event.getGuild().getId(): null;

@@ -14,6 +14,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserUtil {
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,7 +52,9 @@ public class UserUtil {
         }
     }
 
-    public JSONObject getUserdataFromHttpApi(){
+
+
+    public JSONObject getUserdataFromHttpApi() {
         Request request = new Request.Builder()
                 .url(String.format("https://discord.com/api/v8/users/%s", userId))
                 .addHeader("Authorization", ASMSystem.jda.getToken())
@@ -60,6 +66,56 @@ public class UserUtil {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public List<Reputation> getReputationLog() throws SQLException {
+        List<Reputation> list = new ArrayList<>();
+        Connection con = new MySQLUtil().getConnection();
+        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `user_reputation_log` WHERE `user_id`=?;");
+        pstmt.setString(1, userId);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            OffsetDateTime dateTime = OffsetDateTime.ofInstant(rs.getTimestamp("dateTime").toInstant(), ZoneId.systemDefault());
+            Reputation rep = new Reputation(userId, rs.getString("reason"), dateTime, rs.getDouble("old_val"), rs.getDouble("now_val"));
+            list.add(rep);
+        }
+        return list;
+    }
+
+    public static class Reputation{
+        String userid;
+        String reason;
+        OffsetDateTime dateTime;
+        double from_val;
+        double val;
+
+        public Reputation(String userId, String reason, OffsetDateTime dateTime, double from_val, double val){
+            this.userid = userId;
+            this.reason = reason;
+            this.dateTime = dateTime;
+            this.from_val = from_val;
+            this.val = val;
+        }
+
+        public String getUserId() {
+            return userid;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public OffsetDateTime getDateTime() {
+            return dateTime;
+        }
+
+        public double getFrom_val() {
+            return from_val;
+        }
+
+        public double getVal() {
+            return val;
         }
     }
 

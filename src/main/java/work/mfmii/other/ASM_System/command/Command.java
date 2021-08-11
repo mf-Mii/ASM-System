@@ -11,10 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.mfmii.other.ASM_System.Config;
-import work.mfmii.other.ASM_System.utils.CommandManager;
-import work.mfmii.other.ASM_System.utils.CommandMap;
-import work.mfmii.other.ASM_System.utils.LanguageUtil;
-import work.mfmii.other.ASM_System.utils.PermissionUtil;
+import work.mfmii.other.ASM_System.utils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,7 @@ public class Command extends CommandManager {
             return true;
         }
         Message message = createResponse(lang, event.getGuild().getId(), event.getChannel().getId(), sender.getId(), null);
-        event.getMessage().reply(message).queue();
+        event.getMessage().reply(message).mentionRepliedUser(false).queue();
 
         /*}else {
             StringBuilder sb = new StringBuilder();
@@ -82,11 +79,11 @@ public class Command extends CommandManager {
         String user_id = sender.getId();
         LanguageUtil.Language lang = new LanguageUtil().getUserLanguage(sender);
         if (new PermissionUtil().hasPermission(guild_id, channel_id, user_id, this.getPermission())){
-            String target = event.getOption("cmd")!=null?event.getOption("cmd").getName():null;
+            String target = event.getOption("cmd")!=null?event.getOption("cmd").getAsString():null;
             Message response = createResponse(lang, guild_id, channel_id, user_id, target);
-            event.reply(response).mentionRepliedUser(true).queue();
+            event.reply(response).setEphemeral(true).addActionRow(new MessageGenerate().closeButton(lang)).mentionRepliedUser(true).queue();
         }else {
-            event.reply(this.getPermissionMessage(lang)).queue();
+            event.reply(this.getPermissionMessage(lang)).setEphemeral(true).queue();
         }
         return false;
     }
